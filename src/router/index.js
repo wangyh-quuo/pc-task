@@ -11,17 +11,17 @@ const routes = [
     component: Home
   },
   {
-    path: '/exam/login',
+    path: '/practiceLogin',
     name: 'practiceLogin',
     component: () => import(/* webpackChunkName: "practiceLogin" */ '../views/exam/login.vue')
   },
   {
-    path: '/exam/practiceTest',
+    path: '/practiceTest',
     name: 'practiceTest',
     component: () => import(/* webpackChunkName: "practiceTest" */ '../views/exam/practiceTest.vue')
   },
   {
-    path: '/exam/doExam',
+    path: '/doExam',
     name: 'doExam',
     component: () => import(/* webpackChunkName: "practiceTest" */ '../views/exam/doExam.vue')
   }
