@@ -1,7 +1,7 @@
 <template>
   <div class="content-top">
     <div class="top-content">
-      <img class="logo" src="@/assets/image/ylt_logo.png" alt />
+      <img class="logo" src="@/assets/image/ylt_logo.png" @click="toYlt" />
       <div class="top-Navigation" @click="openMenu">
         <div class="select-a">
           <p class="Medical-type">临床执业助理医师</p>
@@ -48,6 +48,9 @@ export default {
   methods: {
     openMenu() {
       this.meunShow = !this.meunShow;
+    },
+    toYlt() {
+      location.href = "https://www.zgylt.com";
     }
   }
 };

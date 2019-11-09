@@ -3,12 +3,12 @@
     <div class="left-Navigation">
       <div
         class="Navigation-list"
-        :class="index==navBarIndex?'left-Navigation__active': ''"
+        :class="index==menuSideIndex?'left-Navigation__active': ''"
         v-for="(item,index) of navList"
         :key="index"
         @click="changNav(index)"
       >
-        <img :src="index==navBarIndex?item.imgUrlChoose:item.imgUrl" alt />
+        <img :src="index==menuSideIndex?item.imgUrlChoose:item.imgUrl" alt />
         <p>{{ item.title }}</p>
       </div>
     </div>
@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -49,25 +50,40 @@ export default {
           imgUrl: require("@/assets/image/home_unfinished_unchoosed.png"),
           imgUrlChoose: require("@/assets/image/home_unfinished_choosed.png")
         }
-      ],
-      navBarIndex: 0
+      ]
     };
   },
+  computed: {
+    ...mapState(['menuSideIndex'])
+  },
   methods: {
+    ...mapMutations(['setMenuSideIndex']),
     changNav(index) {
-      this.navBarIndex = index;
+      this.setMenuSideIndex(index);
       //TODO: 跳转到对应页面
-      switch (this.navBarIndex) {
+      switch (this.menuSideIndex) {
         case 0:
-          this.$router.push("/")
+          this.$router.push({ name: "home" });
           break;
         case 1:
           break;
         case 2:
+          this.$router.push({
+            name: "subjectList",
+            params: { type: "mistake" }
+          });
           break;
         case 3:
+          this.$router.push({
+            name: "subjectList",
+            params: { type: "finish" }
+          });
           break;
         case 4:
+          this.$router.push({
+            name: "subjectList",
+            params: { type: "notFinish" }
+          });
           break;
         default:
           break;

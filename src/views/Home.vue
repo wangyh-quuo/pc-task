@@ -27,21 +27,21 @@
       <template #content-center>
         <div class="menu-list">
           <div>
-            <div class="menu-list-list">
+            <div class="menu-list-list" @click="toExercise">
               <img src="@/assets/image/home_yksj.png" alt />
               <p>月考试卷</p>
             </div>
-            <div class="menu-list-list">
+            <div class="menu-list-list" @click="toExercise">
               <img src="@/assets/image/home_xkzt.png" alt />
               <p>学科真题</p>
             </div>
-            <div class="menu-list-list">
+            <div class="menu-list-list" @click="toExercise">
               <img src="@/assets/image/home_pgmk.png" alt />
               <p>评估模考</p>
             </div>
           </div>
           <div>
-            <div class="menu-list-list">
+            <div class="menu-list-list" @click="toExercise">
               <img src="@/assets/image/ztmn.png" alt />
               <p>真题模拟</p>
             </div>
@@ -49,7 +49,7 @@
               <img src="@/assets/image/jkmn.png" alt />
               <p>2019机考模拟</p>
             </div>
-            <div class="menu-list-list">
+            <div class="menu-list-list" @click="toExercise">
               <img src="@/assets/image/home_txdx.png" alt />
               <p>特训专享</p>
             </div>
@@ -74,22 +74,40 @@
         </div>
       </template>
     </ylt-template>
+    <choose-list-dialog v-show="visible" @hidden="closeDialog"></choose-list-dialog>
   </div>
 </template>
 
 <script>
 import yltTemplate from "@/components/common/yltTemplate";
+import chooseListDialog from "@/components/dialog/chooseListDialog";
+import { mapMutations } from "vuex";
 export default {
   data() {
     return { visible: false };
   },
+  mounted() {
+    this.initPage();
+  },
   methods: {
+    ...mapMutations(["setMenuSideIndex"]),
+    initPage() {
+      this.setMenuSideIndex(0);
+    },
     toPracticeTest() {
-      this.$router.push({ name: "practiceTest" });
+      this.$router.push({ name: "practiceLogin" });
+    },
+    toExercise() {
+      //弹出选择框
+      this.visible = true;
+    },
+    closeDialog() {
+      this.visible = false;
     }
   },
   components: {
-    yltTemplate
+    yltTemplate,
+    chooseListDialog
   }
 };
 </script>
@@ -185,6 +203,10 @@ export default {
       font-size: 14px;
       color: #1e1e1e;
       line-height: 20px;
+      max-height: 40px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 2;
     }
   }
   .bottom-right-content {

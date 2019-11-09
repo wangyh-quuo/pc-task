@@ -4,26 +4,61 @@ import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
 
+// 解决重复点击导航路由报错
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+}
+
 const routes = [
+  {
+    path: "*",
+    name: "404",
+    component: () =>
+      import(
+        /* webpackChunkName: "practiceLogin" */ "../views/notFound/notFound.vue"
+      )
+  },
   {
     path: "/",
     name: "home",
     component: Home
   },
   {
-    path: '/practiceLogin',
-    name: 'practiceLogin',
-    component: () => import(/* webpackChunkName: "practiceLogin" */ '../views/exam/login.vue')
+    path: "/exam/practiceLogin",
+    name: "practiceLogin",
+    component: () =>
+      import(/* webpackChunkName: "practiceLogin" */ "../views/exam/login.vue")
   },
   {
-    path: '/practiceTest',
-    name: 'practiceTest',
-    component: () => import(/* webpackChunkName: "practiceTest" */ '../views/exam/practiceTest.vue')
+    path: "/exam/practiceTest",
+    name: "practiceTest",
+    component: () =>
+      import(
+        /* webpackChunkName: "practiceTest" */ "../views/exam/practiceTest.vue"
+      )
   },
   {
-    path: '/doExam',
-    name: 'doExam',
-    component: () => import(/* webpackChunkName: "practiceTest" */ '../views/exam/doExam.vue')
+    path: "/exam/doExam",
+    name: "doExam",
+    component: () =>
+      import(/* webpackChunkName: "practiceTest" */ "../views/exam/doExam.vue")
+  },
+  {
+    path: "/report",
+    name: "report",
+    component: () =>
+      import(
+        /* webpackChunkName: "practiceTest" */ "../views/practice/report.vue"
+      )
+  },
+  {
+    path: "/subjectList/:type",
+    name: "subjectList",
+    component: () =>
+      import(
+        /* webpackChunkName: "practiceTest" */ "../views/practice/subjectList.vue"
+      )
   }
 ];
 
