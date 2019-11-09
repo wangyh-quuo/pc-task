@@ -4,53 +4,83 @@
       <img class="logo" src="@/assets/image/ylt_logo.png" @click="toYlt" />
       <div class="top-Navigation" @click="openMenu">
         <div class="select-a">
-          <p class="Medical-type">临床执业助理医师</p>
+          <p class="Medical-type">{{ typeList[currentIndex].name }}</p>
           <img class="select-Medical-type" :src="arrowImg" alt />
         </div>
       </div>
       <div class="top-information">
-        <p class="ifo-iphone">18802020395</p>
-        <img class="ifo-avatar" src="@/assets/image/home_pgmk.png" alt />
+        <p class="ifo-iphone" v-text="userInfo.name">telephone</p>
+        <img class="ifo-avatar" :src="userInfo.headPortrait" alt />
       </div>
     </div>
     <!-- 分类 -->
-    <div class="select-list" v-show="meunShow">
-      <div class="list-top">
-        <div>临床执业医师</div>
-        <div>临床执业助理医师</div>
-        <div>乡村全科执业助理医师</div>
-        <div>中医执业医师</div>
-      </div>
-      <div class="list-bottom">
-        <div>中医执业助理医师</div>
-        <div>执业中药师</div>
-        <div>职业西药师</div>
-        <div>口腔执业助理医师</div>
-      </div>
+    <div class="select-list" v-show="menuShow">
+      <div
+        class="select-list__item"
+        :class="currentIndex==index?'select-list__active':''"
+        v-for="(type,index) of typeList"
+        :key="type.id"
+        v-text="type.name"
+        @click="chooseType(type.id,index)"
+      ></div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      meunShow: false
+      menuShow: false, //显示类别下拉选择
+      currentIndex: 0 //当前选择的类别索引
     };
   },
   computed: {
+    ...mapState(["userInfo", "typeList"]),
     arrowImg() {
-      return this.meunShow
+      return this.menuShow
         ? require("@/assets/image/choose_arrow.png")
         : require("@/assets/image/choose_arrow_up.png");
     }
   },
+  mounted() {
+    this.initPage();
+  },
   methods: {
+    ...mapMutations(["setmodeClassifyList", "isLoading", "loadingSuccess"]),
+    initPage() {
+      //进入请求当前列表下的试题列表
+      const type = this.typeList[this.currentIndex];
+      this.getModeClassifyList(type.id);
+    },
     openMenu() {
-      this.meunShow = !this.meunShow;
+      this.menuShow = !this.menuShow;
+    },
+    closeMenu() {
+      this.menuShow = false;
     },
     toYlt() {
       location.href = "https://www.zgylt.com";
+    },
+    //选择类别
+    chooseType(id, index) {
+      this.currentIndex = index;
+      //请求该类别下的所有试题列表分类
+      this.getModeClassifyList(id);
+    },
+    /**
+     * 获取列表下的试题类型列表
+     */
+    getModeClassifyList(id) {
+      this.isLoading();
+      this.closeMenu();
+      this.api.getModeClassifyList(id).then(res => {
+        this.setmodeClassifyList(res);
+        setTimeout(() => {
+          this.loadingSuccess();
+        }, 500);
+      });
     }
   }
 };
@@ -85,37 +115,33 @@ export default {
 }
 
 .select-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   position: absolute;
   z-index: 10;
-  width: 760px;
-  height: 132px;
-  font-size: 16px;
-  left: 50%;
   top: 72px;
+  left: 50%;
   transform: translateX(-50%);
+  padding: 20px 30px;
+  width: 700px;
+  font-size: 16px;
   background-color: #00b295;
 }
 
-.list-top,
-.list-bottom {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 20px;
-  height: 36px;
-}
-
-.list-top div,
-.list-bottom div {
+.select-list__item {
+  margin: 8px 10px;
+  padding: 0 16px;
   height: 36px;
   line-height: 36px;
-  padding-right: 16px;
-  padding-left: 16px;
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-  margin-left: 10px;
-  margin-right: 10px;
+  cursor: pointer;
+}
+.select-list__active {
+  color: #00b295;
+  background-color: #fff;
 }
 .Medical-type {
   height: 100%;

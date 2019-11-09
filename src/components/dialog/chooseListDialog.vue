@@ -4,34 +4,38 @@
       <p class="dialog-box-titlt">请选择做题列表</p>
       <div class="dialog-box-list">
         <!-- 一级标题 -->
-        <div v-for="(topLevelList,index) of 5" :key="index" :pIndex="index">
-          <div class="dialog-box-item" @click="foldFirstLevel(index)">
+        <div v-for="(list,index1) of doExamList" :key="list.id">
+          <div class="dialog-box-item" @click.stop="foldFirstLevel(index1)">
             <img
               class="isadd"
-              :src="firstLevel[index]?require('@/assets/image/s_class_unfold.png'):require('@/assets/image/s_class_fold.png')"
+              :src="firstLevel[index1]?require('@/assets/image/s_class_unfold.png'):require('@/assets/image/s_class_fold.png')"
             />
-            <p class="dialog-box-item-name">一级标题{{topLevelList}}</p>
+            <p class="dialog-box-item-name">{{list.text}}</p>
             <img
               class="isopen"
-              :src="firstLevel[index]?require('@/assets/image/list_arrow_up.png'):require('@/assets/image/list_arrow_down.png')"
+              :src="firstLevel[index1]?require('@/assets/image/list_arrow_up.png'):require('@/assets/image/list_arrow_down.png')"
             />
           </div>
-          <!-- 二级标题
-          <div ref="parentIndex" v-show="firstLevel[index]" :data="index" @click="setParentIndex(index)">
-            <div v-for="(item,index) of 2" :key="index" @click="fold(index,$event)">
+          <!-- 二级标题 -->
+          <div ref="parentIndex" v-show="firstLevel[index1]">
+            <div
+              v-for="(item,index2) of list.ChildNodes"
+              :key="item.id"
+              @click.stop="fold(index1,index2)"
+            >
               <div class="dialog-box-item__small">
                 <img
                   class="isadd"
-                  :src="foldArray[index]?require('@/assets/image/s_class_unfold.png'):require('@/assets/image/s_class_fold.png')"
+                  :src="secondLevel[index1][index2]?require('@/assets/image/s_class_unfold.png'):require('@/assets/image/s_class_fold.png')"
                 />
-                <p class="dialog-box-item-name">二级标题{{ item }}</p>
+                <p class="dialog-box-item-name">{{ item.text }}</p>
                 <img
                   class="isopen"
-                  :src="foldArray[index]?require('@/assets/image/list_arrow_up.png'):require('@/assets/image/list_arrow_down.png')"
+                  :src="secondLevel[index1][index2]?require('@/assets/image/list_arrow_up.png'):require('@/assets/image/list_arrow_down.png')"
                 />
               </div>
               <transition>
-                <div class="dialog-box-list-a" v-show="foldArray[index]">
+                <div class="dialog-box-list-a" v-show="secondLevel[index1][index2]">
                   <div class="dialog-box-item-a">
                     <p class="dialog-box-item-a-name">呼吸系统疾病撒大大啊实打实的啊实打实</p>
                     <p class="dialog-box-item-a-const">
@@ -67,9 +71,9 @@
                   </div>
                 </div>
               </transition>
-            </div> 
-          </div>-->
-          <child-list :parentIndex="index" v-if="firstLevel[index]"></child-list>
+            </div>
+          </div>
+          <input type="hidden" v-model="flag" />
         </div>
       </div>
     </div>
@@ -77,30 +81,54 @@
 </template>
 
 <script>
-import childList from "./secondList"
+import { mapState } from 'vuex';
 export default {
   data() {
     return {
-      /*
-        firstLevelList: [ [false,false,false] ,[],[]]
-      */
-      firstLevel: [],
-      firstLevelList: [],
+      flag: 0,
+      firstLevel: [], //二级列表展示与否 a[1] = true
+      secondLevel: [], //对应三级列表是否展示 例如:a[1][2] = true;
       foldArray: []
     };
   },
+  computed: {
+    ...mapState(['doExamList'])
+  },
+  created() {
+    this.initData();
+  },
+  mounted() {
+    this.initPage();
+  },
   methods: {
+    initData() {
+      //如果数据为空则初始化
+      this.doExamList.length = 100;
+      for (let i = 0; i < this.doExamList.length; i++) {
+        if (!this.secondLevel[i]) {
+          this.secondLevel[i] = [];
+        }
+      }
+    },
+    initPage() {},
     //关闭弹框
     close() {
       this.$emit("hidden", false);
     },
     foldFirstLevel(index) {
       this.$set(this.firstLevel, index, !this.firstLevel[index]);
-    }
+    },
+    fold(index1, index2) {
+      this.$set(
+        this.secondLevel[index1],
+        index2,
+        !this.secondLevel[index1][index2]
+      );
+      this.flag++;
+    },
+    
   },
-  components: {
-    childList
-  }
+  components: {}
 };
 </script>
 

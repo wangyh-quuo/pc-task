@@ -15,6 +15,10 @@ import "swiper/dist/css/swiper.css";
 Vue.use(VueAwesomeSwiper);
 Vue.use(ElementUI);
 
+import api from "@/api/http.js";
+
+Vue.prototype.api = api;
+
 Vue.config.productionTip = false;
 
 new Vue({

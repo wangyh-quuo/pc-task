@@ -5,54 +5,35 @@
         <div class="center-top">
           <div class="center-top-list">
             <p class="list-p-1">
-              <span>4</span>时
-              <span>18</span>分
+              <span v-text="learnTime.h"></span>时
+              <span v-text="learnTime.m">18</span>分
             </p>
             <p class="list-p-2">学习时间</p>
           </div>
           <div class="center-top-list">
             <p class="list-p-1">
-              <span>135</span>题
+              <span v-text="userInfo.anserSum"></span>题
             </p>
             <p class="list-p-2">做题数</p>
           </div>
           <div class="center-top-list">
             <p class="list-p-1">
-              <span>70</span>%
+              <span v-text="userInfo.rate"></span>%
             </p>
             <p class="list-p-2">正确率</p>
           </div>
         </div>
       </template>
       <template #content-center>
-        <div class="menu-list">
-          <div>
-            <div class="menu-list-list" @click="toExercise">
-              <img src="@/assets/image/home_yksj.png" alt />
-              <p>月考试卷</p>
-            </div>
-            <div class="menu-list-list" @click="toExercise">
-              <img src="@/assets/image/home_xkzt.png" alt />
-              <p>学科真题</p>
-            </div>
-            <div class="menu-list-list" @click="toExercise">
-              <img src="@/assets/image/home_pgmk.png" alt />
-              <p>评估模考</p>
-            </div>
-          </div>
-          <div>
-            <div class="menu-list-list" @click="toExercise">
-              <img src="@/assets/image/ztmn.png" alt />
-              <p>真题模拟</p>
-            </div>
-            <div class="menu-list-list" @click="toPracticeTest">
-              <img src="@/assets/image/jkmn.png" alt />
-              <p>2019机考模拟</p>
-            </div>
-            <div class="menu-list-list" @click="toExercise">
-              <img src="@/assets/image/home_txdx.png" alt />
-              <p>特训专享</p>
-            </div>
+        <div class="menu-list" v-loading="loading">
+          <div
+            class="menu-list__contentt"
+            @click="popDialog(classify.id)"
+            v-for="classify of modeClassifyList"
+            :key="classify.id"
+          >
+            <img :src="classify.pic" alt />
+            <p v-text="classify.name"></p>
           </div>
         </div>
       </template>
@@ -81,28 +62,69 @@
 <script>
 import yltTemplate from "@/components/common/yltTemplate";
 import chooseListDialog from "@/components/dialog/chooseListDialog";
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 export default {
   data() {
-    return { visible: false };
+    return {
+      visible: false,
+      classifyId: 0 //
+    };
+  },
+  computed: {
+    ...mapState(["loading","userInfo", "modeClassifyList"]),
+    //学习时长
+    learnTime() {
+      return {
+        h: parseInt(this.userInfo.learnTime / 3600),
+        m: parseInt((this.userInfo.learnTime / 60) % 60)
+      };
+    }
   },
   mounted() {
     this.initPage();
   },
   methods: {
-    ...mapMutations(["setMenuSideIndex"]),
+    ...mapMutations(["setMenuSideIndex", "setUserInfo", "setTypeList","setDoExamList"]),
     initPage() {
+      console.log("parent mounted");
       this.setMenuSideIndex(0);
+      this.getUserInfo();
+      this.getTypeList();
     },
     toPracticeTest() {
       this.$router.push({ name: "practiceLogin" });
     },
-    toExercise() {
+    popDialog(id) {
       //弹出选择框
       this.visible = true;
+      //请求试题多级列表
+      this.getTestTypeList(id);
     },
     closeDialog() {
       this.visible = false;
+    },
+    //请求数据
+    getUserInfo() {
+      this.api.getUserInfo().then(res => {
+        this.setUserInfo(res);
+      });
+    },
+    getTypeList() {
+      this.api.getTypeList().then(res => {
+        this.setTypeList(res);
+      });
+    },
+    getModeClassifyList() {
+      this.api.getModeClassifyList().then(res => {
+        this.setTypeList(res);
+      });
+    },
+    //请求数据
+    getTestTypeList(id) {
+      this.api.getTestTypeList(id).then(res=>{
+        const jsonRes = JSON.parse(res);
+        this.setDoExamList(jsonRes);
+      });
     }
   },
   components: {
@@ -142,27 +164,25 @@ export default {
 }
 
 .menu-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: space-evenly;
   width: 760px;
   height: 520px;
   margin-top: 20px;
   background-color: #fff;
   text-align: center;
-  > div {
-    width: 760px;
-    display: flex;
-    flex-direction: row;
-  }
-  .menu-list-list {
-    width: 200px;
-    height: 200px;
-    margin-top: 40px;
-    margin-left: 40px;
+  .menu-list__contentt {
+    padding: 27px 0 28px;
+    margin: 0 20px;
+    width: 150px;
     box-shadow: 0px 0px 16px #f0f5f5;
+    text-align: center;
     cursor: pointer;
     img {
-      width: 80px;
-      height: 80px;
-      margin-top: 30px;
+      width: 56px;
+      height: 56px;
     }
     p {
       font-size: 18px;
@@ -171,7 +191,6 @@ export default {
     }
   }
 }
-
 .bottom-right {
   top: 88px;
   margin-left: 40px;
