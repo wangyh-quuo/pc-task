@@ -124,7 +124,8 @@ export default {
         index2,
         !this.secondLevel[index1][index2]
       );
-      this.flag++;
+      this.flag++;//强制刷新视图
+      //TODO: id为test 开头请求第三级列表，否则显示无数据
     },
     
   },
