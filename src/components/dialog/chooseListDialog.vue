@@ -21,7 +21,7 @@
             <div
               v-for="(item,index2) of list.ChildNodes"
               :key="item.id"
-              @click.stop="fold(index1,index2)"
+              @click.stop="fold(index1,index2,item.id)"
             >
               <div class="dialog-box-item__small">
                 <img
@@ -36,32 +36,20 @@
               </div>
               <transition>
                 <div class="dialog-box-list-a" v-show="secondLevel[index1][index2]">
-                  <div class="dialog-box-item-a">
-                    <p class="dialog-box-item-a-name">呼吸系统疾病撒大大啊实打实的啊实打实</p>
+                  <div
+                    class="dialog-box-item-a"
+                    v-for="exam of examList"
+                    :key="exam.id"
+                    @click.stop="toDoExercisePage(exam.id)"
+                  >
+                    <p class="dialog-box-item-a-name" v-text="exam.text"></p>
                     <p class="dialog-box-item-a-const">
                       题量：
-                      <span>10/100</span>
+                      <span v-text="exam.Progress"></span>
                     </p>
                     <p class="dialog-box-item-a-correct">
                       正确率：
-                      <span>90%</span>
-                    </p>
-                    <img
-                      class="dialog-box-item-a-write"
-                      src="@/assets/image/test_write_grey.png"
-                      alt
-                    />
-                  </div>
-
-                  <div class="dialog-box-item-a">
-                    <p class="dialog-box-item-a-name">呼吸系统疾病</p>
-                    <p class="dialog-box-item-a-const">
-                      题量：
-                      <span>10/100</span>
-                    </p>
-                    <p class="dialog-box-item-a-correct">
-                      正确率：
-                      <span>90%</span>
+                      <span v-text="exam.Rate"></span>
                     </p>
                     <img
                       class="dialog-box-item-a-write"
@@ -81,18 +69,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 export default {
   data() {
     return {
       flag: 0,
       firstLevel: [], //二级列表展示与否 a[1] = true
       secondLevel: [], //对应三级列表是否展示 例如:a[1][2] = true;
-      foldArray: []
+      examList: [] //三级列表
     };
   },
   computed: {
-    ...mapState(['doExamList'])
+    ...mapState(["doExamList"])
   },
   created() {
     this.initData();
@@ -103,7 +91,7 @@ export default {
   methods: {
     initData() {
       //如果数据为空则初始化
-      this.doExamList.length = 100;
+      this.doExamList.length = 10;
       for (let i = 0; i < this.doExamList.length; i++) {
         if (!this.secondLevel[i]) {
           this.secondLevel[i] = [];
@@ -118,16 +106,35 @@ export default {
     foldFirstLevel(index) {
       this.$set(this.firstLevel, index, !this.firstLevel[index]);
     },
-    fold(index1, index2) {
+    fold(index1, index2, id) {
       this.$set(
         this.secondLevel[index1],
         index2,
         !this.secondLevel[index1][index2]
       );
-      this.flag++;//强制刷新视图
-      //TODO: id为test 开头请求第三级列表，否则显示无数据
+      this.flag++; //强制刷新视图
+      //TODO: id为test 开头则直接进入试卷，否则显示第三级列表
+      if (this.secondLevel[index1][index2]) {
+        this.showExamList(id);
+      }
     },
-    
+    //第三级列表数据
+    showExamList(id) {
+      console.log(id);
+      if (id.match(/test/g)) {
+        const _id = parseInt(id.replace(/test-/g, ""));
+        this.toDoExercisePage(_id);
+        return;
+      }
+      this.api.getTestList(id).then(res => {
+        this.examList = JSON.parse(res);
+        console.log(this.examList);
+      });
+    },
+    //跳转做题页面
+    toDoExercisePage(id) {
+      this.$router.push({ name: "doExercise", params: { id: id } });
+    }
   },
   components: {}
 };

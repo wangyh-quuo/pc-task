@@ -113,12 +113,27 @@ const api = {
     });
   },
   /**
-   * 
+   * 获得试题类别列表(二级列表)
    * @param {Number} id 试题类型id
    */
   getTestTypeList(id) {
     return new Promise((resolve, reject) => {
       post(`/Test/TypeIndex/${id}`)
+        .then(res => {
+          resolve(res.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 获得具体下类别的试题列表
+   * @param {Number} id 试题类型id
+   */
+  getTestList(id) {
+    return new Promise((resolve, reject) => {
+      get(`/Test/GetTest/${id}`)
         .then(res => {
           resolve(res.results);
         })

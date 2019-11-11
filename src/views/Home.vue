@@ -47,10 +47,10 @@
             </div>
           </div>
           <div class="bottom-right-content">
-            <img src="@/assets/image/day_practice.png" alt />
-            <p class="brc-p1">每日一练</p>
-            <p class="brc-p2">每天二十题，相信坚持的力量。</p>
-            <button class="Start-practicing">开始练习</button>
+            <img src="@/assets/image/jkmn_side .png" alt />
+            <p class="brc-p1">机考模拟</p>
+            <p class="brc-p2">模拟真实机考，做好充分准备</p>
+            <button class="Start-practicing" @click="toPracticeTest">开始机考</button>
           </div>
         </div>
       </template>
@@ -71,7 +71,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["loading","userInfo", "modeClassifyList"]),
+    ...mapState(["loading", "userInfo", "modeClassifyList"]),
     //学习时长
     learnTime() {
       return {
@@ -84,9 +84,13 @@ export default {
     this.initPage();
   },
   methods: {
-    ...mapMutations(["setMenuSideIndex", "setUserInfo", "setTypeList","setDoExamList"]),
+    ...mapMutations([
+      "setMenuSideIndex",
+      "setUserInfo",
+      "setTypeList",
+      "setDoExamList"
+    ]),
     initPage() {
-      console.log("parent mounted");
       this.setMenuSideIndex(0);
       this.getUserInfo();
       this.getTypeList();
@@ -95,8 +99,6 @@ export default {
       this.$router.push({ name: "practiceLogin" });
     },
     popDialog(id) {
-      //弹出选择框
-      this.visible = true;
       //请求试题多级列表
       this.getTestTypeList(id);
     },
@@ -121,9 +123,17 @@ export default {
     },
     //请求数据
     getTestTypeList(id) {
-      this.api.getTestTypeList(id).then(res=>{
+      this.api.getTestTypeList(id).then(res => {
         const jsonRes = JSON.parse(res);
         this.setDoExamList(jsonRes);
+        if (jsonRes.length > 0) {
+          //弹出选择框
+          this.visible = true;
+        } else {
+          this.$alert("请求的数据为空", "提示", {
+            confirmButtonText: "选择其他类别吧"
+          });
+        }
       });
     }
   },
@@ -263,6 +273,7 @@ export default {
       font-size: 18px;
       color: #ffffff;
       outline: none;
+      cursor: pointer;
     }
   }
 }
