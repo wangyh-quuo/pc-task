@@ -4,14 +4,14 @@
     <!-- 题目 -->
     <section class="exam-box">
       <div class="exam-list_box">
-        <div class="exam-list_content" v-for="(item,index1) of examList" :key="item.id">
+        <div class="exam-list_content" v-for="(item,index1) of anserCardList" :key="item.id">
           <transition>
             <div v-show="currentIndex==index1">
               <div class="exam-title">
                 <h2 style="font-size: 20px;">消化系统</h2>
                 <span
-                  class="collection"
-                  :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
+                  class="collection el-icon-star-on"
+                  :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
                   @click.stop="addCollection(item.id)"
                 ></span>
               </div>
@@ -26,10 +26,13 @@
               <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
                 <div
                   class="exam-option__index"
-                  :class="cardList[index1]==index2?'exam-option__index__active':''"
-                  @click="chooseAnswer(index1,item.id,index2,item.answer)"
+                  :class="optionClass(item,index2)"
                 >{{ String.fromCharCode(0x41+index2) }}</div>
-                <div v-html="removeStyleFont(option)" class="exam-option__detail"></div>
+                <div
+                  v-html="removeStyleFont(option)"
+                  class="exam-option__detail"
+                  :style="fontColor(item,index2)"
+                ></div>
               </div>
             </div>
           </transition>
@@ -47,7 +50,7 @@
       </div>
       <!-- 答题卡 -->
       <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
+        <p class="exam-card_time">总用时: {{ payTime.h }}:{{ payTime.m }}:{{ payTime.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
             <h2>答题卡</h2>
@@ -56,15 +59,19 @@
           <!-- 答题卡内容 -->
           <div class="exam-card_index">
             <span
-              :class="cardList[index]!=null?'card-active':''"
-              v-for="(item,index) of examLength"
-              :key="item"
-            >{{ item }}</span>
+              :class="isDo(item,index)"
+              v-for="(item,index) of anserCardList"
+              :key="item.id"
+            >{{ index+1 }}</span>
           </div>
           <div class="exam-card_tips">
             <div style="color: #00b395;">
               <span class="icon_ok"></span>
               <span>已做</span>
+            </div>
+            <div style="color: #ff695e;">
+              <span class="icon_error"></span>
+              <span>错误</span>
             </div>
             <div style="color: #999;">
               <span class="icon_no"></span>
@@ -72,32 +79,49 @@
             </div>
           </div>
         </div>
-        <div v-show="false">
+        <div class="submit-test">
           <el-button>所有解析</el-button>
           <el-button>只看错题</el-button>
-        </div>
-        <div class="submit-test">
-          <el-button @click="submitExam">交卷</el-button>
         </div>
       </div>
     </section>
     <!-- 解析 -->
-    <section></section>
+    <section class="solution-box">
+      <div v-for="(item,index) of anserCardList" :key="item.id">
+        <transition>
+          <div class="solution-content" v-show="index==currentIndex">
+            <div class="solution-content__headline">
+              <p>
+                <span class="dajx">【答案解析】</span>
+              </p>
+              <p>
+                <span>正确答案：</span>
+                <span style="color: #00b395;" v-text="item.answer"></span>
+              </p>
+              <p>
+                <span>您选择的答案：</span>
+                <span style="color: #ff695e;" v-text="item.userSelect=='N'?'无':item.userSelect"></span>
+              </p>
+            </div>
+            <div class="solution-content_desc" v-html="item.analysis"></div>
+          </div>
+        </transition>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
 import yltHeader from "@/components/common/yltHeader";
-import { mapState, mapMutations } from "vuex";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
-      examList: [], //试题列表
+      anserCardList: [], //试题列表
       currentIndex: 0, //当前试题索引
       examLength: 0, //试题总数量
       answerList: [], //用户选择答案列表
       cardList: [], //答题卡内容
-      payTime: 0, //费时
       timer: null,
       records: [], // 做题记录
       isSaveLocalStorage: false //是否数据存储在本地
@@ -107,66 +131,70 @@ export default {
     this.initPage();
   },
   computed: {
-    ...mapState(["userInfo"]),
+    ...mapState(["userInfo", "scoreReport"]),
     //第一题禁止按钮
     firstExam() {
       return this.currentIndex == 0 ? "button-disabled" : "button-active";
     },
-    //计时器
-    distance() {
+    payTime() {
       return {
-        h: this.formatTime(parseInt((this.payTime / 3600) % 24)),
-        m: this.formatTime(parseInt((this.payTime / 60) % 60)),
-        s: this.formatTime(parseInt(this.payTime % 60))
+        h: this.formatTime(parseInt(this.scoreReport.useTime / 3600)),
+        m: this.formatTime(parseInt((this.scoreReport.useTime / 60)%60)),
+        s: this.formatTime(parseInt(this.scoreReport.useTime % 60))
+      };
+    },
+    optionClass() {
+      return function(item, index) {
+        if (String.fromCharCode(0x41 + index) == item.answer) {
+          //this.typeColor = "#00b395";
+          return "exam-option__index__ok";
+        } else {
+          if (item.userSelect != "N") {
+            if (String.fromCharCode(0x41 + index) == item.userSelect) {
+              //this.typeColor = "#ff965e";
+              return "exam-option__index__error";
+            }
+          }
+        }
+      };
+    },
+    fontColor() {
+      return function(item, index) {
+        if (String.fromCharCode(0x41 + index) == item.answer) {
+          return { color: "#00b395" };
+        } else {
+          if (item.userSelect != "N") {
+            if (String.fromCharCode(0x41 + index) == item.userSelect) {
+              return { color: "#ff965e" };
+            }
+          }
+        }
+      };
+    },
+    isDo() {
+      return function(item) {
+        if (item.userSelect == "N") {
+          return "card-no";
+        } else if (item.answer != item.userSelect) {
+          return "card-error";
+        } else {
+          return "card-active";
+        }
       };
     }
   },
   methods: {
-    ...mapMutations(["setScoreReport"]),
     initPage() {
       //获得做题列表
-      this.getTestDetails(this.$route.params.id);
-      //从localStorage取回数据(做题记录)
-      try {
-        this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
-        //如果是当前试卷，则还原数据
-        for (const record of this.records) {
-          if (
-            record.id ==
-            `${this.$route.params.classifyId}/${this.$route.params.id}`
-          ) {
-            this.cardList = record.cardList;
-            this.payTime = record.payTime;
-            this.currentIndex = record.currentIndex;
-            this.answerList = record.answerList;
-            this.isSaveLocalStorage = true;
-            break;
-          }
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      this.getAnserCard(this.$route.params.id, 0);
     },
     //请求数据
-    getTestDetails(id) {
+    getAnserCard(id, range) {
       this.api
-        .getTestDetails(id)
+        .getAnserCard(id, range)
         .then(res => {
-          this.examList = res;
-          this.examLength = this.examList.length;
-          //开启定时器
-          this.timer = setInterval(() => {
-            this.payTime++;
-          }, 1000);
-          //初始化答题卡
-          for (let i = 0; i < this.examList.length; i++) {
-            this.answerList[i] = {
-              index: i,
-              id: this.examList[i].id,
-              userSelect: "N",
-              rightOption: this.examList[i].answer
-            };
-          }
+          this.anserCardList = res;
+          this.examLength = res.length;
         })
         .catch(err => {
           console.log(err);
@@ -197,87 +225,6 @@ export default {
       }
       this.currentIndex++;
     },
-    /**
-     * 选择答案
-     * @param { Number } index 索引
-     * @param { Number } id 题目id
-     * @param { Number } userSelect 用户选择
-     * @param { Number } rightOption 正确答案
-     */
-    chooseAnswer(index, id, userSelect, rightOption) {
-      console.log(
-        index,
-        id,
-        String.fromCharCode(0x41 + userSelect),
-        rightOption
-      );
-      if (!this.answerList[index]) {
-        this.answerList[index] = {};
-      }
-      //封装答案
-      this.answerList[index] = {
-        index,
-        id,
-        userSelect: String.fromCharCode(0x41 + userSelect),
-        rightOption
-      };
-      if (!this.cardList[index]) {
-        this.$set(this.cardList, index, "");
-      }
-      //填充答题卡
-      this.$set(this.cardList, index, userSelect);
-    },
-    /* 交卷     */
-    submitExam() {
-      const rquestModel = {
-        complete: true, //保存做题记录
-        moduleTyId: this.$route.params.classifyId,
-        useTime: this.payTime,
-        answerSheets: this.answerList
-      };
-      console.log(rquestModel)
-      //TODO: 提交试卷
-      if (this.cardList.length != this.examLength) {
-        this.$confirm("您还有未做的题, 是否继续提交试卷?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            this.api
-              .submitTest(this.$route.params.id, rquestModel)
-              .then(res => {
-                this.setScoreReport(res);
-                this.$message({
-                  type: "success",
-                  message: "交卷成功!"
-                });
-                this.$router.push({
-                  name: "report",
-                  params: { testId: this.$route.params.id, id: res.id }
-                });
-              });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消"
-            });
-          });
-      } else {
-        this.api.submitTest(this.$route.params.id, rquestModel).then(res => {
-          this.setScoreReport(res);
-          this.$message({
-            type: "success",
-            message: "交卷成功!"
-          });
-          this.$router.push({
-            name: "report",
-            params: { testId: this.$route.params.id, id: res.id }
-          });
-        });
-      }
-    },
     /* 收藏 */
     addCollection(id) {
       this.api
@@ -296,51 +243,6 @@ export default {
           });
         });
     }
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$confirm(
-      "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
-      "提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }
-    )
-      .then(() => {
-        //离开前保存数据
-        if (!this.isSaveLocalStorage) {
-          this.records.push({
-            id: `${from.params.classifyId}/${from.params.id}`,
-            payTime: this.payTime,
-            currentIndex: this.currentIndex,
-            cardList: this.cardList,
-            answerList: this.answerList
-          });
-        } else {
-          for (let i = 0; i < this.records.length; i++) {
-            if (
-              this.records[i].id ==
-              `${from.params.classifyId}/${from.params.id}`
-            ) {
-              this.records[i] = {
-                id: `${from.params.classifyId}/${from.params.id}`,
-                payTime: this.payTime,
-                currentIndex: this.currentIndex,
-                cardList: this.cardList,
-                answerList: this.answerList
-              };
-              break;
-            }
-          }
-        }
-        localStorage.setItem("doExamRecord", JSON.stringify(this.records));
-        next();
-      })
-      .catch(err => {
-        console.log(err);
-        next(false);
-      });
   },
   components: {
     yltHeader
@@ -374,7 +276,6 @@ export default {
           .collection {
             position: absolute;
             right: 40px;
-            color: #ffdd46;
             font-size: 24px;
             cursor: pointer;
           }
@@ -402,6 +303,7 @@ export default {
           font-size: 18px;
           color: #666;
           .exam-option__index {
+            box-sizing: border-box;
             width: 24px;
             height: 24px;
             text-align: center;
@@ -413,6 +315,16 @@ export default {
           .exam-option__index__active {
             color: #fff;
             background: linear-gradient(0, #ffd073, #ffca4f);
+          }
+          .exam-option__index__error {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #ff8f70, #ff7c6e);
+          }
+          .exam-option__index__ok {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #00c9ab, #00b295);
           }
           .exam-option__detail {
             margin-left: 20px;
@@ -492,11 +404,19 @@ export default {
           color: #00b395;
           text-align: center;
           border-radius: 50%;
-          border: 1px solid #00b395;
         }
         .card-active {
-          background: #00b395;
+          background: linear-gradient(0, #00c9a8, #00b295);
           color: #fff;
+        }
+        .card-no {
+          background: transparent;
+          color: #999;
+          border: 1px solid #999;
+        }
+        .card-error {
+          color: #fff;
+          background: linear-gradient(0, #ff8f70, #ff7c6e);
         }
       }
       .exam-card_index::-webkit-scrollbar {
@@ -526,18 +446,65 @@ export default {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          border: 1px solid #00b395;
+          border: 1px solid #999;
+        }
+        .icon_error {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #ff695e;
         }
       }
       .submit-test {
+        display: flex;
+        justify-content: center;
+        margin: 40px 0;
         /deep/ .el-button {
-          margin: 40px 0;
-          width: 360px;
+          margin: 0;
+          width: 180px;
           height: 56px;
           color: #fff;
-          font-size: 24px;
+          font-size: 18px;
           background-color: #00b395;
         }
+        /deep/ .el-button:nth-child(2) {
+          margin: 0;
+          width: 180px;
+          height: 56px;
+          color: #999;
+          font-size: 18px;
+          background-color: #f0f2f5;
+        }
+      }
+    }
+  }
+  .solution-box {
+    margin: 0 auto;
+    width: 1200px;
+    background: #fff;
+    .solution-content {
+      padding: 40px;
+      .solution-content__headline {
+        display: flex;
+        p {
+          margin-right: 40px;
+          span {
+            font-size: 20px;
+            line-height: 24px;
+          }
+        }
+        .dajx {
+          color: #1e1e1e;
+          font-weight: bold;
+          font-size: 24px;
+        }
+      }
+      .solution-content_desc {
+        margin-top: 40px;
+        width: 800px;
+        font-size: 20px;
+        color: #333;
+        line-height: 1.5;
       }
     }
   }

@@ -71,6 +71,12 @@
 <script>
 import { mapState } from "vuex";
 export default {
+  props: {
+    classifyId: {
+      type: Number,
+      default: 0
+    }
+  },
   data() {
     return {
       flag: 0,
@@ -133,7 +139,7 @@ export default {
     },
     //跳转做题页面
     toDoExercisePage(id) {
-      this.$router.push({ name: "doExercise", params: { id: id } });
+      this.$router.push({ name: "doExercise", params: { classifyId: this.classifyId, id: id } });
     }
   },
   components: {}
@@ -175,6 +181,7 @@ export default {
         display: flex;
         flex-direction: row;
         position: relative;
+        cursor: pointer;
         .isadd {
           width: 20px;
           height: 20px;
@@ -201,6 +208,7 @@ export default {
         display: flex;
         flex-direction: row;
         position: relative;
+        cursor: pointer;
         .isadd {
           width: 16px;
           height: 16px;
@@ -224,6 +232,7 @@ export default {
       .dialog-box-list-a {
         background-color: #f7f8fa;
         padding: 1px;
+        cursor: pointer;
         .dialog-box-item-a {
           width: 100%;
           display: flex;

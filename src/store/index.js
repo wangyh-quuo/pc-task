@@ -12,6 +12,7 @@ export default new Vuex.Store({
     typeList: JSON.parse(localStorage.getItem("typeList")) || [],
     modeClassifyList: [], //报考类别下的试卷类型模块
     doExamList: [], //做题类别列表
+    scoreReport: JSON.parse(localStorage.getItem("scoreReport")) || {} //交卷成绩
   },
   mutations: {
     //设置侧边栏位置
@@ -37,14 +38,18 @@ export default new Vuex.Store({
       const _typeList = JSON.stringify(typeList);
       localStorage.setItem("typeList", _typeList);
     },
-    setmodeClassifyList(state,modeClassifyList) {
+    setmodeClassifyList(state, modeClassifyList) {
       state.modeClassifyList = modeClassifyList;
     },
-    setDoExamList(state,doExamList) {
+    setDoExamList(state, doExamList) {
       state.doExamList = doExamList;
+    },
+    setScoreReport(state, scoreReport) {
+      state.scoreReport = scoreReport;
+      const _scoreReport = JSON.stringify(scoreReport);
+      localStorage.setItem("scoreReport", _scoreReport);
     }
   },
-  actions: {
-  },
+  actions: {},
   modules: {}
 });

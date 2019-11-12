@@ -4,33 +4,44 @@
     <div class="box">
       <div class="page-content__report">
         <div class="report-progress">
-          <el-progress type="circle" :percentage="25" :stroke-width="12" color="#00b395" :width="160"></el-progress>
-          <p >正确率</p>
+          <el-progress
+            type="circle"
+            :percentage="scoreReport.percent"
+            :stroke-width="12"
+            color="#00b395"
+            :width="160"
+          ></el-progress>
+          <p>正确率</p>
         </div>
         <div class="page-content__report-ifo">
           <div class="page-content__report-ifo-top">
             <div class="page-content__report-ifo-top-item">
-              <p>100</p>
+              <p>{{ scoreReport.reCount }}</p>
               <p>答题总数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
-              <p>80</p>
+              <p>{{ scoreReport.rightCount }}</p>
               <p>正确数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
-              <p>30分40秒</p>
+              <p>{{ payTime.m }}分{{ payTime.s }}秒</p>
               <p>用时</p>
             </div>
           </div>
           <p class="page-content__report-ifo-bottom content-bottom-report-ifo-top-item">
             您已
-            <span>超越80%</span>的用户！继续加油哦！
+            <span>超越{{ scoreReport.percentage }}</span>的用户！继续加油哦！
           </p>
         </div>
       </div>
       <div class="page-content__ifo">
         <div class="page-content__ifo-card">
-          <div class="page-content__ifo-card-item" v-for="item of 50" :key="item">{{ item }}</div>
+          <div
+            class="page-content__ifo-card-item"
+            :class="isDo(item)"
+            v-for="(item,index) of anserCardList"
+            :key="item.id"
+          >{{ index+1 }}</div>
         </div>
         <div class="page-content__ifo-report">
           <div class="page-content__ifo-report-item">
@@ -39,7 +50,7 @@
           </div>
           <div class="page-content__ifo-report-item">
             <div class="notright"></div>
-            <p class="notright-9">错误</p>
+            <p class="notright-p">错误</p>
           </div>
           <div class="page-content__ifo-report-item">
             <div class="notdo"></div>
@@ -48,15 +59,15 @@
         </div>
       </div>
       <div class="page-content__to">
-        <div class="page-content__to-item">
+        <div class="page-content__to-item" @click="showAnswer">
           <img src="@/assets/image/report_check_answer.png" alt />
           <p>查看解析</p>
         </div>
-        <div class="page-content__to-item">
+        <div class="page-content__to-item" @click="showAnswer">
           <img src="@/assets/image/report_check_wrong.png" alt />
           <p>只看错题</p>
         </div>
-        <div class="page-content__to-item">
+        <div class="page-content__to-item" @click="showAnswer">
           <img src="@/assets/image/report_back_list.png" alt />
           <p>做题列表</p>
         </div>
@@ -67,7 +78,72 @@
 
 <script>
 import yltHeader from "@/components/common/yltHeader";
+import { mapState } from "vuex";
 export default {
+  data() {
+    return {
+      anserCardList: [],
+      examLength: 0,
+      examList: [],
+      ableDoExam: []
+    };
+  },
+  computed: {
+    ...mapState(["scoreReport"]),
+    payTime() {
+      return {
+        m: parseInt(this.scoreReport.useTime / 60),
+        s: parseInt(this.scoreReport.useTime % 60)
+      };
+    },
+    isDo() {
+      return function(item) {
+        if (item.userSelect == "N") {
+          return "card-no";
+        } else if (item.answer != item.userSelect) {
+          return "card-error";
+        }
+      };
+    }
+  },
+  mounted() {
+    this.initPage();
+  },
+  methods: {
+    initPage() {
+      this.getAnserCard(this.$route.params.id, 0);
+      this.getTestDetails(this.$route.params.testId);
+    },
+    //查看解析
+    showAnswer() {
+      this.$router.push({
+        name: "answer",
+        params: { id: this.$route.params.id }
+      });
+    },
+    //请求数据
+    getAnserCard(id, range) {
+      this.api
+        .getAnserCard(id, range)
+        .then(res => {
+          this.anserCardList = res;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    getTestDetails(id) {
+      this.api
+        .getTestDetails(id)
+        .then(res => {
+          this.examList = res;
+          this.examLength = res.length;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+  },
   components: {
     yltHeader
   }
@@ -99,7 +175,7 @@ export default {
         text-align: center;
       }
     }
-   
+
     .page-content__report-ifo {
       height: 100%;
       margin-left: 40px;
@@ -148,9 +224,7 @@ export default {
     flex-direction: row;
     position: relative;
     .page-content__ifo-card {
-      margin-top: 40px;
-      margin-left: 40px;
-      margin-bottom: 40px;
+      padding: 30px 25px;
       display: flex;
       flex-wrap: wrap;
       height: 180px;
@@ -162,17 +236,25 @@ export default {
     display: none;
   }
   .page-content__ifo-card-item {
+    box-sizing: border-box;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     background-color: #00b395;
     color: #ffffff;
-    /*margin-top: -20px;*/
-    margin: 0 30px 20px 0px;
+    margin: 10px 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
+  }
+  .card-no {
+    background: transparent;
+    color: #999;
+    border: 1px solid #999;
+  }
+  .card-error {
+    background: #fa7c73;
   }
   .page-content__ifo-report {
     position: absolute;
@@ -236,6 +318,7 @@ export default {
       flex-direction: row;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
       img {
         width: 30px;
         height: 30px;

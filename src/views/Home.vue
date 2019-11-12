@@ -55,7 +55,7 @@
         </div>
       </template>
     </ylt-template>
-    <choose-list-dialog v-show="visible" @hidden="closeDialog"></choose-list-dialog>
+    <choose-list-dialog :classifyId="classifyId" v-show="visible" @hidden="closeDialog"></choose-list-dialog>
   </div>
 </template>
 
@@ -101,6 +101,8 @@ export default {
     popDialog(id) {
       //请求试题多级列表
       this.getTestTypeList(id);
+      //设置classifyId
+      this.classifyId = id;
     },
     closeDialog() {
       this.visible = false;
@@ -113,11 +115,6 @@ export default {
     },
     getTypeList() {
       this.api.getTypeList().then(res => {
-        this.setTypeList(res);
-      });
-    },
-    getModeClassifyList() {
-      this.api.getModeClassifyList().then(res => {
         this.setTypeList(res);
       });
     },

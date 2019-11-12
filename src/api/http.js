@@ -98,7 +98,7 @@ const api = {
     });
   },
   /**
-   * 
+   *
    * @param {Number} typeId 报考类别id
    */
   getModeClassifyList(typeId) {
@@ -128,12 +128,74 @@ const api = {
     });
   },
   /**
-   * 获得具体下类别的试题列表
-   * @param {Number} id 试题类型id
+   * 获得具体类别的列表
+   * @param {Number} id 二级类别id
    */
   getTestList(id) {
     return new Promise((resolve, reject) => {
       get(`/Test/GetTest/${id}`)
+        .then(res => {
+          resolve(res.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 获得具体类别的试题列表
+   * @param {Number} id 试题类型id
+   */
+  getTestDetails(id) {
+    return new Promise((resolve, reject) => {
+      get(`/Test/GetTestDetails/${id}`)
+        .then(res => {
+          resolve(res.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 交卷
+   * @param {Number} id //试卷id
+   * @param {Object} params 答题数据
+   */
+  submitTest(id, params) {
+    return new Promise((resolve, reject) => {
+      post(`/Test/SubmitTest/${id}`, params)
+        .then(res => {
+          resolve(res.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 收藏试题
+   * @param {Number} id
+   */
+  addCollection(id) {
+    return new Promise((resolve, reject) => {
+      post(`/Collections/Add/${id}`)
+        .then(res => {
+          resolve(res.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 当前试题的答题卡
+   * @param {Number} id 答题id
+   * @param {Number} range 查询条件
+   */
+  getAnserCard(id, range) {
+    return new Promise((resolve, reject) => {
+      get(`/Test/AnserCard/${id}`, { params: { range } })
         .then(res => {
           resolve(res.results);
         })
