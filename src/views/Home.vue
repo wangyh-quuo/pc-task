@@ -223,6 +223,7 @@ export default {
     height: 96px;
     background-color: #fff;
     padding-top: 24px;
+    cursor: pointer;
     > p {
       font-size: 16px;
       color: #999999;

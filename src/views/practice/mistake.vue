@@ -12,7 +12,7 @@
                 <span
                   class="collection"
                   :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
-                  @click.stop="addCollection(item.id)"
+                  @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
               <div class="exam-type__box">
@@ -189,6 +189,7 @@ export default {
       this.api
         .addCollection(id)
         .then(res => {
+          console.log(res)
           this.$message({
             type: "success",
             message: res.message

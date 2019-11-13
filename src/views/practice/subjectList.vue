@@ -8,6 +8,31 @@
       </template>
       <template #content-center>
         <div class="page-box">
+          <!-- 我的收藏 -->
+          <div v-if="menuSideIndex==1">
+            <div
+              class="page-box-item"
+              v-for="item of collectionList.results"
+              :key="item.id"
+              @click="toMistakePage(item.id)"
+            >
+              <div class="page-box-item-left" v-text="item.title"></div>
+              <div class="page-box-item-right-a">
+                <p>{{ item.count }}题</p>
+                <img src="@/assets/image/list_arrow_right.png" alt />
+              </div>
+            </div>
+            <div class="pagination">
+              <el-pagination
+                background
+                layout="prev, pager, next"
+                :page-size="mistakeList.rows"
+                :page-count="mistakeList.total"
+                :current-page="collectionCurrentPage"
+                @current-change="queryCollectionByPage"
+              ></el-pagination>
+            </div>
+          </div>
           <!-- 我的错题 -->
           <div v-if="menuSideIndex==2">
             <div
@@ -105,12 +130,14 @@ export default {
   data() {
     return {
       currentMode: 0,
+      collectionList: {},
       mistakeList: {},
       finishList: {},
       unFinishList: {},
+      collectionCurrentPage: 1,
       mistakeCurrentPage: 1,
       finishCurrentPage: 1,
-      unFinishCurrentPage: 1,
+      unFinishCurrentPage: 1
     };
   },
   computed: {
@@ -125,6 +152,14 @@ export default {
     setCurrentMode(id) {
       this.currentMode = id;
       switch (this.menuSideIndex) {
+        case 1:
+          //请求数据
+          this.getCollectionList(
+            this.typeList[this.currentIndex].id,
+            1,
+            this.currentMode
+          );
+          break;
         case 2:
           //请求数据
           this.getMistakeList(
@@ -152,6 +187,20 @@ export default {
           );
           break;
       }
+    },
+    //收藏列表
+    getCollectionList(moduleTypeId, page, mid) {
+      this.api.getCollectionList(moduleTypeId, page, mid)
+        .then(res => {
+          this.collectionList = res;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+
+    queryCollectionByPage(pageIndex) {
+      console.log(pageIndex);
     },
     //错题列表
     getMistakeList(moduleTypeId, page, mid) {
@@ -248,6 +297,9 @@ export default {
   beforeRouteEnter(to, from, next) {
     let index = 0;
     switch (to.params.type) {
+      case "collection":
+        index = 1;
+        break;
       case "mistake":
         index = 2;
         break;
@@ -264,6 +316,9 @@ export default {
       vm.setMenuSideIndex(index);
       const typeId = vm.typeList[vm.currentIndex].id;
       switch (index) {
+        case 1:
+          vm.getCollectionList(typeId, 1, 0);
+          break;
         case 2:
           //请求数据
           vm.getMistakeList(typeId, 1, 0);

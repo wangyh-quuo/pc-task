@@ -2,9 +2,7 @@
   <div>
     <ylt-template>
       <template #content-top>
-        <div class="content-nav">
-         
-        </div>
+        <div class="content-nav"></div>
       </template>
       <template #content-center>
         <div class="bottom-right__practice">
@@ -45,8 +43,12 @@
                 </div>
                 <div class="form-group">
                   <div class="form-btn">
-                    <button @click="enterTest">进入</button>
-                    <button style="margin-left: 10px;" @click="quit">退出</button>
+                    <el-tooltip class="item" effect="dark" content="点我登录" placement="left-start">
+                      <button @click="enterTest">进入</button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="点我退出" placement="right-end">
+                      <button style="margin-left: 10px;" @click="quit">退出</button>
+                    </el-tooltip>
                   </div>
                 </div>
               </div>
@@ -80,12 +82,12 @@ export default {
           type: "error",
           message: "退出成功！"
         });
-        this.$router.push({name: "home"})
+        this.$router.push({ name: "home" });
       });
     }
   },
   components: {
-    yltTemplate,
+    yltTemplate
     // yltNavBar
   }
 };

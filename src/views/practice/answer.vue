@@ -12,7 +12,7 @@
                 <span
                   class="collection el-icon-star-on"
                   :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
-                  @click.stop="addCollection(item.id)"
+                  @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
               <div class="exam-type__box">
@@ -57,7 +57,7 @@
                 <span
                   class="collection el-icon-star-on"
                   :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
-                  @click.stop="addCollection(item.id)"
+                  @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
               <div class="exam-type__box">

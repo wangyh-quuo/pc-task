@@ -2,9 +2,7 @@
   <div class="practice-test">
     <ylt-template>
       <template #content-top>
-        <div class="content-nav">
-          <ylt-nav-bar></ylt-nav-bar>
-        </div>
+        <div class="content-nav"></div>
       </template>
       <template #content-center>
         <div class="bottom-right__info">
@@ -132,11 +130,31 @@
 
 <script>
 import yltTemplate from "@/components/common/yltTemplate";
-import yltNavBar from "@/components/common/yltNavBar";
 export default {
   data() {
     return {
-      examList: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+      examList: [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
       currentIndex: 1, //当前题号
       signQuestionList: [2, 5], //标疑题列表
       currentSignQuestionIndex: "" //当前标疑题
@@ -170,9 +188,9 @@ export default {
     prevQuestion() {
       if (this.currentIndex < 1) {
         this.$message({
-            type: 'info',
-            message: '这是第一题!'
-          });
+          type: "info",
+          message: "这是第一题!"
+        });
         this.currentIndex = 0;
         return;
       }
@@ -183,9 +201,9 @@ export default {
       if (this.currentIndex >= 19) {
         this.currentIndex = 19;
         this.$message({
-            type: 'info',
-            message: '这是最后一题!'
-          });
+          type: "info",
+          message: "这是最后一题!"
+        });
         return;
       }
       this.currentIndex++;
@@ -195,8 +213,7 @@ export default {
     //显示当前题号
   },
   components: {
-    yltTemplate,
-    yltNavBar
+    yltTemplate
   }
 };
 </script>

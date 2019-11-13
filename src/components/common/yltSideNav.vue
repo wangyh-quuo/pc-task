@@ -54,18 +54,21 @@ export default {
     };
   },
   computed: {
-    ...mapState(['menuSideIndex'])
+    ...mapState(["menuSideIndex"])
   },
   methods: {
-    ...mapMutations(['setMenuSideIndex']),
+    ...mapMutations(["setMenuSideIndex"]),
     changNav(index) {
       this.setMenuSideIndex(index);
-      //TODO: 跳转到对应页面
       switch (this.menuSideIndex) {
         case 0:
           this.$router.push({ name: "home" });
           break;
         case 1:
+          this.$router.push({
+            name: "subjectList",
+            params: { type: "collection" }
+          });
           break;
         case 2:
           this.$router.push({
