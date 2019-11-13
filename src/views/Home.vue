@@ -41,9 +41,9 @@
         <div class="bottom-right">
           <div class="bottom-right-top">
             <p>上次做题进度</p>
-            <div class="last-time">
+            <div class="last-time" @click="toDoExamPage">
               <img src="@/assets/image/test_write.png" alt />
-              <p class="last-time-name">代谢与内分泌讲解以及大小肠健康知识讲解···</p>
+              <p class="last-time-name" v-text="doExamProgress"></p>
             </div>
           </div>
           <div class="bottom-right-content">
@@ -78,6 +78,13 @@ export default {
         h: parseInt(this.userInfo.learnTime / 3600),
         m: parseInt((this.userInfo.learnTime / 60) % 60)
       };
+    },
+    doExamProgress() {
+      if (this.userInfo.unfinished) {
+        return `${this.userInfo.unfinished.title}（共${this.userInfo.unfinished.count}题）`;
+      } else {
+        return "暂无做题记录";
+      }
     }
   },
   mounted() {
@@ -130,6 +137,16 @@ export default {
           this.$alert("请求的数据为空", "提示", {
             confirmButtonText: "选择其他类别吧"
           });
+        }
+      });
+    },
+    //做题页面
+    toDoExamPage() {
+      this.$router.push({
+        name: "doExercise",
+        params: {
+          classifyId: this.userInfo.unfinished.mid,
+          id: this.userInfo.unfinished.tid
         }
       });
     }

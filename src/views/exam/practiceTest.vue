@@ -2,9 +2,7 @@
   <div class="practice-test">
     <ylt-template>
       <template #content-top>
-        <div class="content-nav">
-          <ylt-nav-bar></ylt-nav-bar>
-        </div>
+        <div class="content-nav"></div>
       </template>
       <template #content-center>
         <div id="firstConfirmBox" class="bottom-right__info">
@@ -143,7 +141,6 @@
 
 <script>
 import yltTemplate from "@/components/common/yltTemplate";
-import yltNavBar from "@/components/common/yltNavBar";
 export default {
   data() {
     return { confirmIndex: 1 };
@@ -169,8 +166,7 @@ export default {
     }
   },
   components: {
-    yltTemplate,
-    yltNavBar
+    yltTemplate
   }
 };
 </script>

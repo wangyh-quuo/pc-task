@@ -139,7 +139,10 @@ export default {
     },
     //跳转做题页面
     toDoExercisePage(id) {
-      this.$router.push({ name: "doExercise", params: { classifyId: this.classifyId, id: id } });
+      this.$router.push({
+        name: "doExercise",
+        params: { classifyId: this.classifyId, id: id }
+      });
     }
   },
   components: {}
@@ -240,13 +243,13 @@ export default {
           flex-direction: row;
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-start;
           .dialog-box-item-a-name {
             font-size: 14px;
             color: #1e1e1e;
             line-height: 20px;
             text-align: left;
-            /*margin-left: 30px;*/
+            margin-left: 30px;
             width: 200px;
           }
 
@@ -254,9 +257,11 @@ export default {
             font-size: 12px;
             color: #999999;
             margin-left: 40px;
+            min-width: 60px;
           }
 
           .dialog-box-item-a-correct {
+            min-width: 100px;
             font-size: 12px;
             color: #999999;
             margin-left: 20px;

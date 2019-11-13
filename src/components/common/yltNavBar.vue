@@ -1,41 +1,65 @@
 <template>
-  <div class="bottom-right-a-top">
-    <div class="bottom-right-a-top-item bottom-right-a-top-item-select">全部</div>
-    <div class="bottom-right-a-top-item">学科真题</div>
-    <div class="bottom-right-a-top-item">评估模考</div>
-    <div class="bottom-right-a-top-item">冲刺提分</div>
-    <div class="bottom-right-a-top-item">易错精选</div>
-    <div class="bottom-right-a-top-item">历年真题</div>
+  <div class="nav-bar">
+    <div
+      class="nav-bar-item"
+      :class="currentMode==0?'nav-bar-item-select':''"
+      @click.stop="chooseMode(0)"
+    >全部</div>
+    <div
+      class="nav-bar-item"
+      :class="currentMode==item.id?'nav-bar-item-select':''"
+      v-for="item of modeClassifyList"
+      :key="item.id"
+      v-text="item.name"
+      @click.stop="chooseMode(item.id)"
+    ></div>
   </div>
 </template>
 
 <script>
-export default {};
+import { mapState } from "vuex";
+export default {
+  data() {
+    return {
+      currentMode: 0
+    };
+  },
+  computed: {
+    ...mapState(["modeClassifyList"])
+  },
+  methods: {
+    chooseMode(id) {
+      this.currentMode = id;
+      this.$emit("setCurrentMode", id);
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
-.bottom-right-a-top {
+.nav-bar {
   width: 100%;
   height: 72px;
   background-color: #fff;
   display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-}
-
-.bottom-right-a-top-item {
-  width: 100px;
-  height: 36px;
-  font-size: 16px;
-  color: #999999;
-  line-height: 36px;
-  margin-top: 18px;
-  margin-left: 40px;
-  border-radius: 18px;
-  background-color: #f0f2f5;
-}
-
-.bottom-right-a-top-item-select {
-  background-color: rgba(0, 179, 149, 0.2) !important;
-  color: #00b395 !important;
+  font-size: 0.16em;
+  .nav-bar-item {
+    width: 100px;
+    height: 36px;
+    font-size: 0.14rem;
+    color: #999999;
+    line-height: 36px;
+    border-radius: 18px;
+    background-color: #f0f2f5;
+    margin: 0 20px;
+    cursor: pointer;
+  }
+  .nav-bar-item-select {
+    background-color: rgba(0, 179, 149, 0.2) !important;
+    color: #00b395 !important;
+  }
 }
 </style>

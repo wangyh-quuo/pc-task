@@ -39,7 +39,7 @@
           <div
             class="page-content__ifo-card-item"
             :class="isDo(item)"
-            v-for="(item,index) of anserCardList"
+            v-for="(item,index) of answerCardList"
             :key="item.id"
           >{{ index+1 }}</div>
         </div>
@@ -59,11 +59,11 @@
         </div>
       </div>
       <div class="page-content__to">
-        <div class="page-content__to-item" @click="showAnswer">
+        <div class="page-content__to-item" @click="showAnswer(0)">
           <img src="@/assets/image/report_check_answer.png" alt />
           <p>查看解析</p>
         </div>
-        <div class="page-content__to-item" @click="showAnswer">
+        <div class="page-content__to-item" @click="showAnswer(1)">
           <img src="@/assets/image/report_check_wrong.png" alt />
           <p>只看错题</p>
         </div>
@@ -82,10 +82,7 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
-      anserCardList: [],
-      examLength: 0,
-      examList: [],
-      ableDoExam: []
+      answerCardList: []
     };
   },
   computed: {
@@ -111,33 +108,21 @@ export default {
   },
   methods: {
     initPage() {
-      this.getAnserCard(this.$route.params.id, 0);
-      this.getTestDetails(this.$route.params.testId);
+      this.getAnswerCard(this.$route.params.id, 0);
     },
     //查看解析
-    showAnswer() {
+    showAnswer(type) {
       this.$router.push({
         name: "answer",
-        params: { id: this.$route.params.id }
+        params: { id: this.$route.params.id, type: type }
       });
     },
     //请求数据
-    getAnserCard(id, range) {
+    getAnswerCard(id, range) {
       this.api
-        .getAnserCard(id, range)
+        .getAnswerCard(id, range)
         .then(res => {
-          this.anserCardList = res;
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
-    getTestDetails(id) {
-      this.api
-        .getTestDetails(id)
-        .then(res => {
-          this.examList = res;
-          this.examLength = res.length;
+          this.answerCardList = res;
         })
         .catch(err => {
           console.log(err);

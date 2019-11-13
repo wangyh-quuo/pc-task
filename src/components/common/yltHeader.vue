@@ -32,12 +32,11 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      menuShow: false, //显示类别下拉选择
-      currentIndex: 0 //当前选择的类别索引
+      menuShow: false //显示类别下拉选择
     };
   },
   computed: {
-    ...mapState(["userInfo", "typeList"]),
+    ...mapState(["userInfo", "typeList", "currentIndex"]),
     arrowImg() {
       return this.menuShow
         ? require("@/assets/image/choose_arrow.png")
@@ -48,7 +47,12 @@ export default {
     this.initPage();
   },
   methods: {
-    ...mapMutations(["setmodeClassifyList", "isLoading", "loadingSuccess"]),
+    ...mapMutations([
+      "setmodeClassifyList",
+      "setCurrentIndex",
+      "isLoading",
+      "loadingSuccess"
+    ]),
     initPage() {
       //进入请求当前列表下的试题列表
       const type = this.typeList[this.currentIndex];
@@ -61,11 +65,15 @@ export default {
       this.menuShow = false;
     },
     toYlt() {
-      location.href = "https://www.zgylt.com";
+      if(this.$route.name=='home'){
+        location.href = "https://www.zgylt.com";
+      }else {
+        this.$router.push({name: 'home'})
+      }
     },
     //选择类别
     chooseType(id, index) {
-      this.currentIndex = index;
+      this.setCurrentIndex(index);
       //请求该类别下的所有试题列表分类
       this.getModeClassifyList(id);
     },

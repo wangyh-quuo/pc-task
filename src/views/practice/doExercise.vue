@@ -12,7 +12,7 @@
                 <span
                   class="collection"
                   :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
-                  @click.stop="addCollection(item.id)"
+                  @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
               <div class="exam-type__box">
@@ -107,7 +107,12 @@ export default {
     this.initPage();
   },
   computed: {
-    ...mapState(["userInfo"]),
+    //...mapState(["userInfo", "typeList", "currentIndex"]),
+    ...mapState({
+      userInfo: "userInfo",
+      typeList: "typeList",
+      currentTypeIndex: "currentIndex"
+    }),
     //第一题禁止按钮
     firstExam() {
       return this.currentIndex == 0 ? "button-disabled" : "button-active";
@@ -126,6 +131,8 @@ export default {
     initPage() {
       //获得做题列表
       this.getTestDetails(this.$route.params.id);
+    },
+    restoreData() {
       //从localStorage取回数据(做题记录)
       try {
         this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
@@ -167,6 +174,8 @@ export default {
               rightOption: this.examList[i].answer
             };
           }
+          //恢复数据
+          this.restoreData();
         })
         .catch(err => {
           console.log(err);
@@ -193,6 +202,7 @@ export default {
     //下一题
     nextExam() {
       if (this.currentIndex == this.examLength - 1) {
+        this.submitExam();
         return;
       }
       this.currentIndex++;
@@ -229,34 +239,25 @@ export default {
     },
     /* 交卷     */
     submitExam() {
-      const rquestModel = {
+      let rquestModel = {
         complete: true, //保存做题记录
-        moduleTyId: this.$route.params.classifyId,
+        moduleTypeId: this.typeList[this.currentTypeIndex].id,
         useTime: this.payTime,
-        answerSheets: this.answerList
+        answerSheets: this.answerList,
+        mid: this.$route.params.classifyId
       };
-      console.log(rquestModel)
+      console.log(rquestModel);
       //TODO: 提交试卷
       if (this.cardList.length != this.examLength) {
+        rquestModel.complete = false; //未做完
+        console.log(rquestModel);
         this.$confirm("您还有未做的题, 是否继续提交试卷?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
           .then(() => {
-            this.api
-              .submitTest(this.$route.params.id, rquestModel)
-              .then(res => {
-                this.setScoreReport(res);
-                this.$message({
-                  type: "success",
-                  message: "交卷成功!"
-                });
-                this.$router.push({
-                  name: "report",
-                  params: { testId: this.$route.params.id, id: res.id }
-                });
-              });
+            this.requestSubmitExam(this.$route.params.id, rquestModel);
           })
           .catch(() => {
             this.$message({
@@ -265,28 +266,52 @@ export default {
             });
           });
       } else {
-        this.api.submitTest(this.$route.params.id, rquestModel).then(res => {
-          this.setScoreReport(res);
-          this.$message({
-            type: "success",
-            message: "交卷成功!"
+        this.$confirm("是否提交试卷?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            this.requestSubmitExam(this.$route.params.id, rquestModel);
+          })
+          .catch(() => {
+            return;
           });
-          this.$router.push({
-            name: "report",
-            params: { testId: this.$route.params.id, id: res.id }
-          });
-        });
       }
     },
+    requestSubmitExam(id, rquestModel) {
+      this.api.submitTest(id, rquestModel).then(res => {
+        this.setScoreReport(res);
+        this.$message({
+          type: "success",
+          message: "交卷成功!"
+        });
+        this.$router.push({
+          name: "report",
+          params: { testId: this.$route.params.id, id: res.id }
+        });
+      });
+    },
     /* 收藏 */
-    addCollection(id) {
+    addCollection(id, el) {
       this.api
         .addCollection(id)
-        .then(() => {
+        .then(res => {
           this.$message({
             type: "success",
-            message: "收藏成功!"
+            message: res.message
           });
+          for (const cl of el.target.classList) {
+            if (cl == "el-icon-star-on") {
+              el.target.classList.remove("el-icon-star-on");
+              el.target.classList.add("el-icon-star-off");
+              break;
+            } else if (cl == "el-icon-star-off") {
+              el.target.classList.remove("el-icon-star-off");
+              el.target.classList.add("el-icon-star-on");
+              break;
+            }
+          }
         })
         .catch(err => {
           console.log(err);
@@ -298,49 +323,53 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    this.$confirm(
-      "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
-      "提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }
-    )
-      .then(() => {
-        //离开前保存数据
-        if (!this.isSaveLocalStorage) {
-          this.records.push({
-            id: `${from.params.classifyId}/${from.params.id}`,
-            payTime: this.payTime,
-            currentIndex: this.currentIndex,
-            cardList: this.cardList,
-            answerList: this.answerList
-          });
-        } else {
-          for (let i = 0; i < this.records.length; i++) {
-            if (
-              this.records[i].id ==
-              `${from.params.classifyId}/${from.params.id}`
-            ) {
-              this.records[i] = {
-                id: `${from.params.classifyId}/${from.params.id}`,
-                payTime: this.payTime,
-                currentIndex: this.currentIndex,
-                cardList: this.cardList,
-                answerList: this.answerList
-              };
-              break;
+    if (this.cardList.length != this.examLength) {
+      this.$confirm(
+        "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
+        .then(() => {
+          //离开前保存数据
+          if (!this.isSaveLocalStorage) {
+            this.records.push({
+              id: `${from.params.classifyId}/${from.params.id}`,
+              payTime: this.payTime,
+              currentIndex: this.currentIndex,
+              cardList: this.cardList,
+              answerList: this.answerList
+            });
+          } else {
+            for (let i = 0; i < this.records.length; i++) {
+              if (
+                this.records[i].id ==
+                `${from.params.classifyId}/${from.params.id}`
+              ) {
+                this.records[i] = {
+                  id: `${from.params.classifyId}/${from.params.id}`,
+                  payTime: this.payTime,
+                  currentIndex: this.currentIndex,
+                  cardList: this.cardList,
+                  answerList: this.answerList
+                };
+                break;
+              }
             }
           }
-        }
-        localStorage.setItem("doExamRecord", JSON.stringify(this.records));
-        next();
-      })
-      .catch(err => {
-        console.log(err);
-        next(false);
-      });
+          localStorage.setItem("doExamRecord", JSON.stringify(this.records));
+          next();
+        })
+        .catch(err => {
+          console.log(err);
+          next(false);
+        });
+    } else {
+      next();
+    }
   },
   components: {
     yltHeader

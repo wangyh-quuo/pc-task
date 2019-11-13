@@ -10,6 +10,7 @@ export default new Vuex.Store({
     loading: false,
     userInfo: JSON.parse(localStorage.getItem("user-token")) || {},
     typeList: JSON.parse(localStorage.getItem("typeList")) || [],
+    currentIndex: localStorage.getItem("currentIndex") || 0, //当前选择的类别索引
     modeClassifyList: [], //报考类别下的试卷类型模块
     doExamList: [], //做题类别列表
     scoreReport: JSON.parse(localStorage.getItem("scoreReport")) || {} //交卷成绩
@@ -37,6 +38,10 @@ export default new Vuex.Store({
       state.typeList = typeList;
       const _typeList = JSON.stringify(typeList);
       localStorage.setItem("typeList", _typeList);
+    },
+    setCurrentIndex(state, index) {
+      state.currentIndex = index;
+      localStorage.setItem("currentIndex", index);
     },
     setmodeClassifyList(state, modeClassifyList) {
       state.modeClassifyList = modeClassifyList;

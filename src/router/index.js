@@ -67,11 +67,17 @@ const routes = [
       )
   },
   {
-    path: "/answer/:id",
+    path: "/answer/:id/:type",
     name: "answer",
     component: () =>
       import(/* webpackChunkName: "answer" */ "../views/practice/answer.vue")
-  }
+  },
+  {
+    path: "/mistake/:id",
+    name: "mistake",
+    component: () =>
+      import(/* webpackChunkName: "answer" */ "../views/practice/mistake.vue")
+  },
 ];
 
 const router = new VueRouter({

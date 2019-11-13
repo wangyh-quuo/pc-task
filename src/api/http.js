@@ -19,7 +19,7 @@ axios.interceptors.response.use(
     // 否则的话抛出错误
     const res = response.data;
     if (res.status === 200) {
-      return Promise.resolve(res.data);
+      return Promise.resolve(res);
     } else {
       return Promise.reject(res);
     }
@@ -79,7 +79,7 @@ const api = {
     return new Promise((resolve, reject) =>
       get("/User/Get")
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -90,7 +90,7 @@ const api = {
     return new Promise((resolve, reject) => {
       get("/Type/Get")
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -105,7 +105,7 @@ const api = {
     return new Promise((resolve, reject) => {
       get(`/Module/Get/${typeId}`)
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -120,7 +120,7 @@ const api = {
     return new Promise((resolve, reject) => {
       post(`/Test/TypeIndex/${id}`)
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -135,7 +135,7 @@ const api = {
     return new Promise((resolve, reject) => {
       get(`/Test/GetTest/${id}`)
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -150,7 +150,7 @@ const api = {
     return new Promise((resolve, reject) => {
       get(`/Test/GetTestDetails/${id}`)
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -166,7 +166,7 @@ const api = {
     return new Promise((resolve, reject) => {
       post(`/Test/SubmitTest/${id}`, params)
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
         })
         .catch(err => {
           reject(err);
@@ -181,7 +181,26 @@ const api = {
     return new Promise((resolve, reject) => {
       post(`/Collections/Add/${id}`)
         .then(res => {
-          resolve(res.results);
+          resolve(res);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 收藏列表
+   * @param {Number} moduleTypeId 报考类别id
+   * @param {Number} page 第几页
+   * @param {Number} mid 试题分类id
+   */
+  getCollectionList(moduleTypeId, page, mid) {
+    return new Promise((resolve, reject) => {
+      get(`/Collections/GetCollections`, {
+        params: { moduleTypeId, page, mid }
+      })
+        .then(res => {
+          resolve(res.data);
         })
         .catch(err => {
           reject(err);
@@ -193,11 +212,63 @@ const api = {
    * @param {Number} id 答题id
    * @param {Number} range 查询条件
    */
-  getAnserCard(id, range) {
+  getAnswerCard(id, range) {
     return new Promise((resolve, reject) => {
       get(`/Test/AnserCard/${id}`, { params: { range } })
         .then(res => {
-          resolve(res.results);
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   *
+   * @param {Number} moduleTypeId 报考类别id
+   * @param {Number} page 第几页
+   * @param {Number} mid 试题分类id
+   */
+  getMistakeList(moduleTypeId, page, mid) {
+    return new Promise((resolve, reject) => {
+      get(`/WrongQuestions/GetList`, { params: { moduleTypeId, page, mid } })
+        .then(res => {
+          resolve(res.data);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   *
+   * @param {Number} id 错误试题id
+   */
+  getMistake(id) {
+    return new Promise((resolve, reject) => {
+      get(`/WrongQuestions/GetDetails/${id}`)
+        .then(res => {
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 获得做题记录
+   * @param {Number} complete 0未完成,1已完成
+   * @param {Number} page 页号默认0
+   * @param {Number} moduleTypeId
+   * @param {Number} mid 试题类型默认0
+   */
+  getDoExamRecords(complete, page = 1, moduleTypeId, mid = 0) {
+    return new Promise((resolve, reject) => {
+      post(
+        `/Test/ExamRecord?complete=${complete}&page=${page}&moduleTypeId=${moduleTypeId}&mid=${mid}`
+      )
+        .then(res => {
+          resolve(res.data);
         })
         .catch(err => {
           reject(err);

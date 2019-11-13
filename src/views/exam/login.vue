@@ -3,7 +3,7 @@
     <ylt-template>
       <template #content-top>
         <div class="content-nav">
-          <ylt-nav-bar></ylt-nav-bar>
+         
         </div>
       </template>
       <template #content-center>
@@ -28,25 +28,25 @@
                 <div class="form-group">
                   <label>准考证号</label>
                   <div class="form-input">
-                    <input type="text" />
+                    <input type="text" v-model="admission" />
                   </div>
                 </div>
                 <div class="form-group">
                   <label>确认准考证号</label>
                   <div class="form-input">
-                    <input type="text" />
+                    <input type="text" v-model="admission" />
                   </div>
                 </div>
                 <div class="form-group">
                   <label>有效证件号</label>
                   <div class="form-input">
-                    <input type="text" />
+                    <input type="text" v-model="idNumber" />
                   </div>
                 </div>
                 <div class="form-group">
                   <div class="form-btn">
                     <button @click="enterTest">进入</button>
-                    <button style="margin-left: 10px;">退出</button>
+                    <button style="margin-left: 10px;" @click="quit">退出</button>
                   </div>
                 </div>
               </div>
@@ -61,19 +61,32 @@
 
 <script>
 import yltTemplate from "@/components/common/yltTemplate";
-import yltNavBar from "@/components/common/yltNavBar";
+// import yltNavBar from "@/components/common/yltNavBar";
 export default {
   data() {
-    return { visible: false };
+    return { admission: "test001", idNumber: "xxxxxxxxxxxxxxxxxxxx" };
   },
   methods: {
     enterTest() {
       this.$router.push("practiceTest");
+    },
+    quit() {
+      this.$confirm("您要退出考试系统吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        this.$message({
+          type: "error",
+          message: "退出成功！"
+        });
+        this.$router.push({name: "home"})
+      });
     }
   },
   components: {
     yltTemplate,
-    yltNavBar
+    // yltNavBar
   }
 };
 </script>
