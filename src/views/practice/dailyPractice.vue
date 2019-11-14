@@ -3,15 +3,15 @@
     <ylt-header></ylt-header>
     <!-- 题目 -->
     <section class="exam-box">
-      <div class="exam-list_box" v-show="type==0">
-        <div class="exam-list_content" v-for="(item,index1) of answerCardList" :key="item.id">
+      <div class="exam-list_box">
+        <div class="exam-list_content" v-for="(item,index1) of examList" :key="item.id">
           <transition>
-            <div v-show="type==0&&currentIndex==index1">
+            <div v-show="currentIndex==index1">
               <div class="exam-title">
                 <h2 style="font-size: 20px;">消化系统</h2>
                 <span
-                  class="collection el-icon-star-on"
-                  :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
+                  class="collection"
+                  :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
                   @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
@@ -26,58 +26,10 @@
               <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
                 <div
                   class="exam-option__index"
-                  :class="optionClass(item,index2)"
+                  :class="cardList[index1]==index2?'exam-option__index__active':''"
+                  @click="chooseAnswer(index1,item.id,index2,item.answer)"
                 >{{ String.fromCharCode(0x41+index2) }}</div>
-                <div
-                  v-html="removeStyleFont(option)"
-                  class="exam-option__detail"
-                  :style="fontColor(item,index2)"
-                ></div>
-              </div>
-            </div>
-          </transition>
-        </div>
-        <div class="button-box">
-          <button :class="firstExam" @click="lastExam">
-            <i class="el-icon-arrow-left"></i>
-            上一题
-          </button>
-          <button class="button-active" @click="nextExam">
-            下一题
-            <i class="el-icon-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-      <div class="exam-list_box" v-show="type==1">
-        <div class="exam-list_content" v-for="(item,index1) of mistakeList" :key="item.id">
-          <transition>
-            <div v-show="type==1&&mistakeCurrentIndex==index1">
-              <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
-                <span
-                  class="collection el-icon-star-on"
-                  :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
-                  @click.stop="addCollection(item.id,$event)"
-                ></span>
-              </div>
-              <div class="exam-type__box">
-                <h2 class="exam-type" v-text="item.questionType"></h2>
-                <p style="margin-right: 40px;">
-                  <span style="color: #00b395;">{{ index1+1 }}</span>/
-                  <span>{{ mistakeList.length }}</span>
-                </p>
-              </div>
-              <div class="exam-headline" v-html="removeStyleFont(item.stem)"></div>
-              <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
-                <div
-                  class="exam-option__index"
-                  :class="optionClass(item,index2)"
-                >{{ String.fromCharCode(0x41+index2) }}</div>
-                <div
-                  v-html="removeStyleFont(option)"
-                  class="exam-option__detail"
-                  :style="fontColor(item,index2)"
-                ></div>
+                <div v-html="removeStyleFont(option)" class="exam-option__detail"></div>
               </div>
             </div>
           </transition>
@@ -95,7 +47,7 @@
       </div>
       <!-- 答题卡 -->
       <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ payTime.h }}:{{ payTime.m }}:{{ payTime.s }}</p>
+        <p class="exam-card_time">总用时: {{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
             <h2>答题卡</h2>
@@ -104,19 +56,15 @@
           <!-- 答题卡内容 -->
           <div class="exam-card_index">
             <span
-              :class="isDo(item,index)"
-              v-for="(item,index) of answerCardList"
-              :key="item.id"
-            >{{ index+1 }}</span>
+              :class="cardList[index]!=null?'card-active':''"
+              v-for="(item,index) of examLength"
+              :key="item"
+            >{{ item }}</span>
           </div>
           <div class="exam-card_tips">
             <div style="color: #00b395;">
               <span class="icon_ok"></span>
               <span>已做</span>
-            </div>
-            <div style="color: #ff695e;">
-              <span class="icon_error"></span>
-              <span>错误</span>
             </div>
             <div style="color: #999;">
               <span class="icon_no"></span>
@@ -124,46 +72,27 @@
             </div>
           </div>
         </div>
+        <div v-show="false">
+          <el-button>所有解析</el-button>
+          <el-button>只看错题</el-button>
+        </div>
         <div class="submit-test">
-          <el-button @click="showAllAnswer" :type="type==0?'success':'default'">所有解析</el-button>
-          <el-button @click="showOnlyMistake" :type="type==1?'success':'default'">只看错题</el-button>
+          <el-button @click="submitExam">交卷</el-button>
         </div>
       </div>
     </section>
     <!-- 解析 -->
-    <section class="solution-box" v-show="type==0">
-      <div v-for="(item,index) of answerCardList" :key="item.id">
+    <section class="solution-box">
+      <div v-for="(item,index) of analysisList" :key="item.id">
         <transition>
-          <div class="solution-content" v-show="index==currentIndex">
+          <div class="solution-content" v-show="index==currentIndex&&cardList[index]!=null">
             <div class="solution-content__headline">
               <p>
                 <span class="dajx">【答案解析】</span>
               </p>
               <p>
                 <span>正确答案：</span>
-                <span style="color: #00b395;" v-text="item.answer"></span>
-              </p>
-              <p>
-                <span>您选择的答案：</span>
-                <span style="color: #ff695e;" v-text="item.userSelect=='N'?'无':item.userSelect"></span>
-              </p>
-            </div>
-            <div class="solution-content_desc" v-html="item.analysis"></div>
-          </div>
-        </transition>
-      </div>
-    </section>
-    <section class="solution-box" v-show="type==1">
-      <div v-for="(item,index) of mistakeList" :key="item.id">
-        <transition>
-          <div class="solution-content" v-show="index==mistakeCurrentIndex">
-            <div class="solution-content__headline">
-              <p>
-                <span class="dajx">【答案解析】</span>
-              </p>
-              <p>
-                <span>正确答案：</span>
-                <span style="color: #00b395;" v-text="item.answer"></span>
+                <span style="color: #00b395;" v-text="item.rightOption"></span>
               </p>
               <p>
                 <span>您选择的答案：</span>
@@ -180,89 +109,79 @@
 
 <script>
 import yltHeader from "@/components/common/yltHeader";
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      answerCardList: [], //试题列表
+      examList: [], //试题列表
       currentIndex: 0, //当前试题索引
-      mistakeCurrentIndex: 0, //当前错题索引
       examLength: 0, //试题总数量
+      answerList: [], //用户选择答案列表
       cardList: [], //答题卡内容
-      mistakeList: [], //错题
-      type: 0 //0 所有解析 ，1 只看错题
+      payTime: 0, //费时
+      timer: null,
+      analysisList: [] // 解析 做一题直接显示答案
     };
-  },
-  computed: {
-    ...mapState(["userInfo", "scoreReport"]),
-    //第一题禁止按钮
-    firstExam() {
-      return this.currentIndex == 0 ? "button-disabled" : "button-active";
-    },
-    payTime() {
-      return {
-        h: this.formatTime(parseInt(this.scoreReport.useTime / 3600)),
-        m: this.formatTime(parseInt((this.scoreReport.useTime / 60) % 60)),
-        s: this.formatTime(parseInt(this.scoreReport.useTime % 60))
-      };
-    },
-    optionClass() {
-      return function(item, index) {
-        if (String.fromCharCode(0x41 + index) == item.answer) {
-          //this.typeColor = "#00b395";
-          return "exam-option__index__ok";
-        } else {
-          if (item.userSelect != "N") {
-            if (String.fromCharCode(0x41 + index) == item.userSelect) {
-              //this.typeColor = "#ff965e";
-              return "exam-option__index__error";
-            }
-          }
-        }
-      };
-    },
-    fontColor() {
-      return function(item, index) {
-        if (String.fromCharCode(0x41 + index) == item.answer) {
-          return { color: "#00b395" };
-        } else {
-          if (item.userSelect != "N") {
-            if (String.fromCharCode(0x41 + index) == item.userSelect) {
-              return { color: "#ff965e" };
-            }
-          }
-        }
-      };
-    },
-    isDo() {
-      return function(item) {
-        if (item.userSelect == "N") {
-          return "card-no";
-        } else if (item.answer != item.userSelect) {
-          return "card-error";
-        } else {
-          return "card-active";
-        }
-      };
-    }
   },
   mounted() {
     this.initPage();
   },
+  computed: {
+    //...mapState(["userInfo", "typeList", "currentIndex"]),
+    ...mapState({
+      userInfo: "userInfo",
+      typeList: "typeList",
+      currentTypeIndex: "currentIndex"
+    }),
+    //第一题禁止按钮
+    firstExam() {
+      return this.currentIndex == 0 ? "button-disabled" : "button-active";
+    },
+    //计时器
+    distance() {
+      return {
+        h: this.formatTime(parseInt((this.payTime / 3600) % 24)),
+        m: this.formatTime(parseInt((this.payTime / 60) % 60)),
+        s: this.formatTime(parseInt(this.payTime % 60))
+      };
+    }
+  },
   methods: {
+    ...mapMutations(["setScoreReport"]),
     initPage() {
       //获得做题列表
-      this.getAnswerCard(this.$route.params.id, 0);
-      this.type = this.$route.params.type;
+      this.getDailyExercise(this.typeList[this.currentTypeIndex].id);
     },
     //请求数据
-    getAnswerCard(id, range) {
+    getDailyExercise(id) {
       this.api
-        .getAnswerCard(id, range)
+        .getDailyExercise(id)
         .then(res => {
-          this.answerCardList = res;
-          this.examLength = res.length;
-          this.mistakeList = this.getMistake();
+          this.examList = res;
+          this.examLength = this.examList.length;
+          //开启定时器
+          this.timer = setInterval(() => {
+            this.payTime++;
+          }, 1000);
+          //初始化答题卡
+          for (let i = 0; i < this.examList.length; i++) {
+            this.answerList[i] = {
+              index: i,
+              id: this.examList[i].id,
+              userSelect: "N",
+              rightOption: this.examList[i].answer
+            };
+          }
+          //初始化解析
+          for (let i = 0; i < this.examList.length; i++) {
+            this.analysisList[i] = {
+              index: 1,
+              id: this.examList[i].id,
+              userSelect: "N",
+              rightOption: this.examList[i].answer,
+              analysis: this.examList[i].analysis
+            };
+          }
         })
         .catch(err => {
           console.log(err);
@@ -277,42 +196,122 @@ export default {
     },
     //上一题
     lastExam() {
-      if (this.type == 0) {
-        if (this.currentIndex == 0) {
-          this.$message({
-            type: "info",
-            message: "这是第一题!"
-          });
-          return;
-        }
-        this.currentIndex--;
-      } else if (this.type == 1) {
-        if (this.mistakeCurrentIndex == 0) {
-          this.$message({
-            type: "info",
-            message: "这是第一题!"
-          });
-          return;
-        }
-        this.mistakeCurrentIndex--;
+      if (this.currentIndex == 0) {
+        this.$message({
+          type: "info",
+          message: "这是第一题!"
+        });
+        return;
       }
+      this.currentIndex--;
     },
     //下一题
     nextExam() {
-      if (this.type == 0) {
-        if (this.currentIndex == this.examLength - 1) {
-          return;
-        }
-        this.currentIndex++;
-      } else if (this.type == 1) {
-        if (this.mistakeCurrentIndex == this.mistakeList.length - 1) {
-          return;
-        }
-        this.mistakeCurrentIndex++;
+      if (this.currentIndex == this.examLength - 1) {
+        this.submitExam();
+        return;
+      }
+      this.currentIndex++;
+    },
+    /**
+     * 选择答案
+     * @param { Number } index 索引
+     * @param { Number } id 题目id
+     * @param { Number } userSelect 用户选择
+     * @param { Number } rightOption 正确答案
+     */
+    chooseAnswer(index, id, userSelect, rightOption) {
+      console.log(
+        index,
+        id,
+        String.fromCharCode(0x41 + userSelect),
+        rightOption
+      );
+      if (!this.answerList[index]) {
+        this.answerList[index] = {};
+      }
+      //封装答案
+      this.answerList[index] = {
+        index,
+        id,
+        userSelect: String.fromCharCode(0x41 + userSelect),
+        rightOption
+      };
+      if (!this.cardList[index]) {
+        this.$set(this.cardList, index, "");
+      }
+      //填充答题卡
+      this.$set(this.cardList, index, userSelect);
+      //显示做完题的答案
+      this.analysisList[index].userSelect = String.fromCharCode(
+        0x41 + userSelect
+      );
+    },
+    /* 交卷     */
+    submitExam() {
+      let rquestModel = {
+        complete: true, //保存做题记录
+        moduleTypeId: this.typeList[this.currentTypeIndex].id,
+        useTime: this.payTime,
+        answerSheets: this.answerList,
+        mid: this.$route.params.classifyId
+      };
+      //TODO: 提交试卷
+      if (this.cardList.length != this.examLength) {
+        rquestModel.complete = false; //未做完
+        this.$confirm(
+          `您还有${this.examLength - this.cardList.length}题未做, 请继续答题!`,
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
+          .then(() => {
+            this.$message({
+              type: "info",
+              message: "继续做题"
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消"
+            });
+          });
+      } else {
+        this.$confirm("是否提交试卷?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            this.requestSubmitDailyPractice(
+              this.typeList[this.currentTypeIndex].id,
+              rquestModel
+            );
+          })
+          .catch(() => {
+            return;
+          });
       }
     },
+    requestSubmitDailyPractice(id, rquestModel) {
+      this.api.submitDailyPractice(id, rquestModel).then(res => {
+        this.setScoreReport(res);
+        this.$message({
+          type: "success",
+          message: "交卷成功!"
+        });
+        this.$router.push({
+          name: "report",
+          params: { testId: 0, id: res.id } //testId=0 表示为每日一练
+        });
+      });
+    },
     /* 收藏 */
-     addCollection(id, el) {
+    addCollection(id, el) {
       this.api
         .addCollection(id)
         .then(res => {
@@ -339,26 +338,6 @@ export default {
             message: "出错了!"
           });
         });
-    },
-    showAllAnswer() {
-      this.$router.push({
-        name: "answer",
-        params: { id: this.$route.params.id, type: 0 }
-      });
-      this.type = 0;
-    },
-    showOnlyMistake() {
-      this.$router.push({
-        name: "answer",
-        params: { id: this.$route.params.id, type: 1 }
-      });
-      this.type = 1;
-    },
-    getMistake() {
-      //过滤错题
-      return this.answerCardList.filter(item => {
-        return item.userSelect != item.answer;
-      });
     }
   },
   components: {
@@ -393,6 +372,7 @@ export default {
           .collection {
             position: absolute;
             right: 40px;
+            color: #ffdd46;
             font-size: 24px;
             cursor: pointer;
           }
@@ -420,7 +400,6 @@ export default {
           font-size: 18px;
           color: #666;
           .exam-option__index {
-            box-sizing: border-box;
             width: 24px;
             height: 24px;
             text-align: center;
@@ -432,16 +411,6 @@ export default {
           .exam-option__index__active {
             color: #fff;
             background: linear-gradient(0, #ffd073, #ffca4f);
-          }
-          .exam-option__index__error {
-            color: #fff;
-            border: none;
-            background: linear-gradient(0, #ff8f70, #ff7c6e);
-          }
-          .exam-option__index__ok {
-            color: #fff;
-            border: none;
-            background: linear-gradient(0, #00c9ab, #00b295);
           }
           .exam-option__detail {
             margin-left: 20px;
@@ -522,19 +491,11 @@ export default {
           color: #00b395;
           text-align: center;
           border-radius: 50%;
+          border: 1px solid #00b395;
         }
         .card-active {
-          background: linear-gradient(0, #00c9a8, #00b295);
+          background: #00b395;
           color: #fff;
-        }
-        .card-no {
-          background: transparent;
-          color: #999;
-          border: 1px solid #999;
-        }
-        .card-error {
-          color: #fff;
-          background: linear-gradient(0, #ff8f70, #ff7c6e);
         }
       }
       .exam-card_index::-webkit-scrollbar {
@@ -564,33 +525,16 @@ export default {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          border: 1px solid #999;
-        }
-        .icon_error {
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: #ff695e;
+          border: 1px solid #00b395;
         }
       }
       .submit-test {
-        display: flex;
-        justify-content: center;
-        margin: 40px 0;
-        /deep/ .el-button--default {
-          margin: 0;
-          width: 180px;
-          height: 56px;
-          color: #999;
-          font-size: 18px;
-          background-color: #f0f2f5;
-        }
-        /deep/ .el-button--success {
-          margin: 0;
-          width: 180px;
+        /deep/ .el-button {
+          margin: 40px 0;
+          width: 360px;
           height: 56px;
           color: #fff;
-          font-size: 18px;
+          font-size: 24px;
           background-color: #00b395;
         }
       }

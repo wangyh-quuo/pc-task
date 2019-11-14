@@ -28,7 +28,7 @@
         <div class="menu-list" v-loading="loading">
           <div
             class="menu-list__contentt"
-            @click="popDialog(classify.id)"
+            @click="popDialog(classify)"
             v-for="classify of modeClassifyList"
             :key="classify.id"
           >
@@ -105,11 +105,16 @@ export default {
     toPracticeTest() {
       this.$router.push({ name: "practiceLogin" });
     },
-    popDialog(id) {
+    popDialog(classify) {
+      //每日一练
+      if (classify.dailyPractice) {
+        this.$router.push({ name: "dailyPractice" });
+        return;
+      }
       //请求试题多级列表
-      this.getTestTypeList(id);
+      this.getTestTypeList(classify.id);
       //设置classifyId
-      this.classifyId = id;
+      this.classifyId = classify.id;
     },
     closeDialog() {
       this.visible = false;

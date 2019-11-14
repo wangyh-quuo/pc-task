@@ -26,8 +26,8 @@
               <el-pagination
                 background
                 layout="prev, pager, next"
-                :page-size="mistakeList.rows"
-                :page-count="mistakeList.total"
+                :page-size="collectionList.rows"
+                :page-count="collectionList.total"
                 :current-page="collectionCurrentPage"
                 @current-change="queryCollectionByPage"
               ></el-pagination>
@@ -190,7 +190,8 @@ export default {
     },
     //收藏列表
     getCollectionList(moduleTypeId, page, mid) {
-      this.api.getCollectionList(moduleTypeId, page, mid)
+      this.api
+        .getCollectionList(moduleTypeId, page, mid)
         .then(res => {
           this.collectionList = res;
         })
@@ -338,6 +339,10 @@ export default {
     let index = 0;
     const typeId = this.typeList[this.currentIndex].id;
     switch (to.params.type) {
+      case "collection":
+        index = 1;
+        this.getCollectionList(typeId, 1, 0);
+        break;
       case "mistake":
         index = 2;
         this.getMistakeList(typeId, 1, 0);

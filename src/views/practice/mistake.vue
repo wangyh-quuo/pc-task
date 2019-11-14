@@ -189,7 +189,6 @@ export default {
       this.api
         .addCollection(id)
         .then(res => {
-          console.log(res)
           this.$message({
             type: "success",
             message: res.message
@@ -362,6 +361,7 @@ export default {
       .exam-card_index {
         display: flex;
         align-items: center;
+        align-content: flex-start;
         flex-wrap: wrap;
         height: 420px;
         overflow: auto;

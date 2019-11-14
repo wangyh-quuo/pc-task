@@ -274,6 +274,37 @@ const api = {
           reject(err);
         });
     });
-  }
+  },
+  /**
+   * 每日一练，随机组卷
+   * @param {Number} typeId 报考类别id
+   */
+  getDailyExercise(typeId) {
+    return new Promise((resolve, reject) => {
+      get(`/Test/GetSmartTest/${typeId}`)
+        .then(res => {
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
+   * 每日一练交卷
+   * @param {Number} id //试卷id
+   * @param {Object} params 答题数据
+   */
+  submitDailyPractice(id, params) {
+    return new Promise((resolve, reject) => {
+      post(`/Test/SubmitSmartTest/${id}`, params)
+        .then(res => {
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
 };
 export default api;
