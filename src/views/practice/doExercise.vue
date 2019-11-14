@@ -89,6 +89,7 @@
 <script>
 import yltHeader from "@/components/common/yltHeader";
 import { mapState, mapMutations } from "vuex";
+import { nextTick } from 'q';
 export default {
   data() {
     return {
@@ -97,14 +98,17 @@ export default {
       examLength: 0, //试题总数量
       answerList: [], //用户选择答案列表
       cardList: [], //答题卡内容
+      lastAnswerCardList: [], //上次做题记录
       payTime: 0, //费时
       timer: null,
-      records: [], // 做题记录
+      records: [], // 本地做题记录
       isSaveLocalStorage: false //是否数据存储在本地
     };
   },
   mounted() {
-    this.initPage();
+    nextTick(()=>{
+      this.initPage();
+    })
   },
   computed: {
     //...mapState(["userInfo", "typeList", "currentIndex"]),
@@ -133,53 +137,61 @@ export default {
       this.getTestDetails(this.$route.params.id);
     },
     restoreData() {
+
       //从localStorage取回数据(做题记录)
-      try {
-        this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
-        //如果是当前试卷，则还原数据
-        for (const record of this.records) {
-          if (
-            record.id ==
-            `${this.$route.params.classifyId}/${this.$route.params.id}`
-          ) {
-            this.cardList = record.cardList;
-            this.payTime = record.payTime;
-            this.currentIndex = record.currentIndex;
-            this.answerList = record.answerList;
-            this.isSaveLocalStorage = true;
-            break;
+        try {
+          this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
+          //如果是当前试卷，则还原数据
+          for (const record of this.records) {
+            if (
+              record.id ==
+              `${this.$route.params.classifyId}/${this.$route.params.id}`
+            ) {
+              this.cardList = record.cardList;
+              this.payTime = record.payTime;
+              this.currentIndex = record.currentIndex;
+              this.answerList = record.answerList;
+              this.isSaveLocalStorage = true;
+              break;
+            }
           }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
-      }
+      //获得上次做题记录
+      if (this.lastAnswerCardList.length == this.examLength) {
+        this.examList = this.lastAnswerCardList;
+        for (let i = 0; i < this.examLength; i++) {
+         if(this.examList[i].userSelect!='N'){
+           this.$set(this.cardList, i, i);
+           this.answerList[i].userSelect = this.examList[i].userSelect;
+         }
+        }
+      } 
     },
     //请求数据
-    getTestDetails(id) {
-      this.api
-        .getTestDetails(id)
-        .then(res => {
-          this.examList = res;
-          this.examLength = this.examList.length;
-          //开启定时器
-          this.timer = setInterval(() => {
-            this.payTime++;
-          }, 1000);
-          //初始化答题卡
-          for (let i = 0; i < this.examList.length; i++) {
-            this.answerList[i] = {
-              index: i,
-              id: this.examList[i].id,
-              userSelect: "N",
-              rightOption: this.examList[i].answer
-            };
-          }
-          //恢复数据
-          this.restoreData();
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    async getTestDetails(id) {
+      this.examList = await this.api.getTestDetails(id);
+      this.examLength = this.examList.length;
+      //开启定时器
+      this.timer = setInterval(() => {
+        this.payTime++;
+      }, 1000);
+      //初始化答题卡
+      for (let i = 0; i < this.examList.length; i++) {
+        this.answerList[i] = {
+          index: i,
+          id: this.examList[i].id,
+          userSelect: "N",
+          rightOption: this.examList[i].answer
+        };
+      }
+      //恢复数据
+      this.lastAnswerCardList = await this.getLastRecords(
+        this.$route.query.id,
+        0
+      );
+      this.restoreData();
     },
     removeStyleFont(content) {
       return content.replace(/style="\S+"/g, "");
@@ -312,6 +324,12 @@ export default {
             message: "出错了!"
           });
         });
+    },
+    //获得上次做题结果
+    async getLastRecords(id, range) {
+      if (id) {
+        return await this.api.getAnswerCard(id, range);
+      }
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -500,6 +518,7 @@ export default {
       .exam-card_index {
         display: flex;
         align-items: center;
+        align-content: flex-start;
         flex-wrap: wrap;
         height: 420px;
         overflow: auto;

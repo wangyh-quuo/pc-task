@@ -23,7 +23,7 @@
                   <img src="@/assets/image/list_arrow_right.png" alt />
                 </div>
               </div>
-              <div class="pagination" v-show="collectionList.results.length>0">
+              <div class="pagination" v-show="collectionList.total>0">
                 <el-pagination
                   background
                   layout="prev, pager, next"
@@ -33,7 +33,7 @@
                   @current-change="queryCollectionByPage"
                 ></el-pagination>
               </div>
-              <div class="box-blank_tips" v-show="collectionList.results.length==0">暂无数据</div>
+              <div class="box-blank_tips" v-show="collectionList.total==0">暂无数据</div>
             </div>
           </div>
           <!-- 我的错题 -->
@@ -51,7 +51,7 @@
                   <img src="@/assets/image/list_arrow_right.png" alt />
                 </div>
               </div>
-              <div class="pagination" v-show="mistakeList.results.length>0">
+              <div class="pagination" v-show="mistakeList.total>0">
                 <el-pagination
                   background
                   layout="prev, pager, next"
@@ -61,7 +61,7 @@
                   @current-change="queryMistakeByPage"
                 ></el-pagination>
               </div>
-              <div class="box-blank_tips" v-show="mistakeList.results.length==0">暂无数据</div>
+              <div class="box-blank_tips" v-show="mistakeList.total==0">暂无数据</div>
             </div>
           </div>
           <!-- 已完成的题目 -->
@@ -76,7 +76,7 @@
                 <div class="page-box-item-left" v-text="item.title"></div>
                 <div class="page-box-item-right-b">查看成绩</div>
               </div>
-              <div class="pagination" v-show="finishList.results.length>0">
+              <div class="pagination" v-show="finishList.total>0">
                 <el-pagination
                   background
                   layout="prev, pager, next"
@@ -86,7 +86,7 @@
                   @current-change="queryFinshByPage"
                 ></el-pagination>
               </div>
-              <div class="box-blank_tips" v-show="finishList.results.length==0">暂无数据</div>
+              <div class="box-blank_tips" v-show="finishList.total==0">暂无数据</div>
             </div>
           </div>
           <!-- 未做完的题目 -->
@@ -111,7 +111,7 @@
                   <div>继续</div>
                 </div>
               </div>
-              <div class="pagination" v-show="unFinishList.results.length>0">
+              <div class="pagination" v-show="unFinishList.total>0">
                 <el-pagination
                   background
                   layout="prev, pager, next"
@@ -121,7 +121,7 @@
                   @current-change="queryUnfinshByPage"
                 ></el-pagination>
               </div>
-              <div class="box-blank_tips" v-show="unFinishList.results.length==0">暂无数据</div>
+              <div class="box-blank_tips" v-show="unFinishList.total==0">暂无数据</div>
             </div>
           </div>
         </div>
@@ -330,7 +330,8 @@ export default {
       //doExercise/3/5248
       this.$router.push({
         name: "doExercise",
-        params: { classifyId: item.mid, id: item.tid }
+        params: { classifyId: item.mid, id: item.tid },
+        query: {id: item.id}
       });
     }
   },
