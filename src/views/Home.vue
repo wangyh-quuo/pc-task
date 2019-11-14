@@ -108,7 +108,10 @@ export default {
     popDialog(classify) {
       //每日一练
       if (classify.dailyPractice) {
-        this.$router.push({ name: "dailyPractice" });
+        this.$router.push({
+          name: "dailyPractice",
+          params: { classifyId: classify.id }
+        });
         return;
       }
       //请求试题多级列表

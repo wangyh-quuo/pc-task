@@ -126,7 +126,6 @@ export default {
     },
     //第三级列表数据
     showExamList(id) {
-      console.log(id);
       if (id.match(/test/g)) {
         const _id = parseInt(id.replace(/test-/g, ""));
         this.toDoExercisePage(_id);
@@ -134,7 +133,6 @@ export default {
       }
       this.api.getTestList(id).then(res => {
         this.examList = JSON.parse(res);
-        console.log(this.examList);
       });
     },
     //跳转做题页面

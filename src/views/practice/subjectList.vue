@@ -9,107 +9,119 @@
       <template #content-center>
         <div class="page-box">
           <!-- 我的收藏 -->
-          <div v-if="menuSideIndex==1">
-            <div
-              class="page-box-item"
-              v-for="item of collectionList.results"
-              :key="item.id"
-              @click="toMistakePage(item.id)"
-            >
-              <div class="page-box-item-left" v-text="item.title"></div>
-              <div class="page-box-item-right-a">
-                <p>{{ item.count }}题</p>
-                <img src="@/assets/image/list_arrow_right.png" alt />
+          <div v-if="menuSideIndex==1" style="height: 100%;">
+            <div v-loading="loading" style="height: 100%;">
+              <div
+                class="page-box-item"
+                v-for="item of collectionList.results"
+                :key="item.id"
+                @click="toCollectionPage(item.id)"
+              >
+                <div class="page-box-item-left" v-text="item.title"></div>
+                <div class="page-box-item-right-a">
+                  <p>{{ item.count }}题</p>
+                  <img src="@/assets/image/list_arrow_right.png" alt />
+                </div>
               </div>
-            </div>
-            <div class="pagination">
-              <el-pagination
-                background
-                layout="prev, pager, next"
-                :page-size="collectionList.rows"
-                :page-count="collectionList.total"
-                :current-page="collectionCurrentPage"
-                @current-change="queryCollectionByPage"
-              ></el-pagination>
+              <div class="pagination" v-show="collectionList.results.length>0">
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :page-size="collectionList.rows"
+                  :page-count="collectionList.total"
+                  :current-page="collectionCurrentPage"
+                  @current-change="queryCollectionByPage"
+                ></el-pagination>
+              </div>
+              <div class="box-blank_tips" v-show="collectionList.results.length==0">暂无数据</div>
             </div>
           </div>
           <!-- 我的错题 -->
-          <div v-if="menuSideIndex==2">
-            <div
-              class="page-box-item"
-              v-for="item of mistakeList.results"
-              :key="item.id"
-              @click="toMistakePage(item.id)"
-            >
-              <div class="page-box-item-left" v-text="item.title"></div>
-              <div class="page-box-item-right-a">
-                <p>{{ item.count }}题</p>
-                <img src="@/assets/image/list_arrow_right.png" alt />
+          <div v-if="menuSideIndex==2" style="height: 100%;">
+            <div v-loading="loading" style="height: 100%;">
+              <div
+                class="page-box-item"
+                v-for="item of mistakeList.results"
+                :key="item.id"
+                @click="toMistakePage(item.id)"
+              >
+                <div class="page-box-item-left" v-text="item.title"></div>
+                <div class="page-box-item-right-a">
+                  <p>{{ item.count }}题</p>
+                  <img src="@/assets/image/list_arrow_right.png" alt />
+                </div>
               </div>
-            </div>
-            <div class="pagination">
-              <el-pagination
-                background
-                layout="prev, pager, next"
-                :page-size="mistakeList.rows"
-                :page-count="mistakeList.total"
-                :current-page="mistakeCurrentPage"
-                @current-change="queryMistakeByPage"
-              ></el-pagination>
+              <div class="pagination" v-show="mistakeList.results.length>0">
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :page-size="mistakeList.rows"
+                  :page-count="mistakeList.total"
+                  :current-page="mistakeCurrentPage"
+                  @current-change="queryMistakeByPage"
+                ></el-pagination>
+              </div>
+              <div class="box-blank_tips" v-show="mistakeList.results.length==0">暂无数据</div>
             </div>
           </div>
           <!-- 已完成的题目 -->
-          <div v-if="menuSideIndex==3">
-            <div
-              class="page-box-item"
-              v-for="item of finishList.results"
-              :key="item.id"
-              @click="toReportPage(item)"
-            >
-              <div class="page-box-item-left" v-text="item.title"></div>
-              <div class="page-box-item-right-b">查看成绩</div>
-            </div>
-            <div class="pagination">
-              <el-pagination
-                background
-                layout="prev, pager, next"
-                :page-size="finishList.rows"
-                :page-count="finishList.total"
-                :current-page="finishCurrentPage"
-                @current-change="queryFinshByPage"
-              ></el-pagination>
+          <div v-if="menuSideIndex==3" style="height: 100%;">
+            <div v-loading="loading" style="height: 100%;">
+              <div
+                class="page-box-item"
+                v-for="item of finishList.results"
+                :key="item.id"
+                @click="toReportPage(item)"
+              >
+                <div class="page-box-item-left" v-text="item.title"></div>
+                <div class="page-box-item-right-b">查看成绩</div>
+              </div>
+              <div class="pagination" v-show="finishList.results.length>0">
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :page-size="finishList.rows"
+                  :page-count="finishList.total"
+                  :current-page="finishCurrentPage"
+                  @current-change="queryFinshByPage"
+                ></el-pagination>
+              </div>
+              <div class="box-blank_tips" v-show="finishList.results.length==0">暂无数据</div>
             </div>
           </div>
           <!-- 未做完的题目 -->
-          <div v-if="menuSideIndex==4">
-            <div
-              class="page-box-item"
-              v-for="item of unFinishList.results"
-              :key="item.id"
-              @click="toDoExamPage(item)"
-            >
-              <div class="page-box-item-left" v-text="item.title"></div>
-              <div class="page-box-item-right-c">
-                <p>
-                  已做：
-                  <span>12</span>
-                </p>
-                <p>
-                  未做：
-                  <span>18</span>
-                </p>
-                <div>继续</div>
+          <div v-if="menuSideIndex==4" style="height: 100%;">
+            <div v-loading="loading" style="height: 100%;">
+              <div
+                class="page-box-item"
+                v-for="item of unFinishList.results"
+                :key="item.id"
+                @click="toDoExamPage(item)"
+              >
+                <div class="page-box-item-left" v-text="item.title"></div>
+                <div class="page-box-item-right-c">
+                  <p>
+                    已做：
+                    <span>12</span>
+                  </p>
+                  <p>
+                    未做：
+                    <span>18</span>
+                  </p>
+                  <div>继续</div>
+                </div>
               </div>
-            </div>
-            <div class="pagination">
-              <el-pagination
-                background
-                layout="prev, pager, next"
-                :page-size="unFinishList.rows"
-                :page-count="unFinishList.total"
-                :current-page="unFinishCurrentPage"
-                @current-change="queryUnfinshByPage"
-              ></el-pagination>
+              <div class="pagination" v-show="unFinishList.results.length>0">
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :page-size="unFinishList.rows"
+                  :page-count="unFinishList.total"
+                  :current-page="unFinishCurrentPage"
+                  @current-change="queryUnfinshByPage"
+                ></el-pagination>
+              </div>
+              <div class="box-blank_tips" v-show="unFinishList.results.length==0">暂无数据</div>
             </div>
           </div>
         </div>
@@ -137,7 +149,8 @@ export default {
       collectionCurrentPage: 1,
       mistakeCurrentPage: 1,
       finishCurrentPage: 1,
-      unFinishCurrentPage: 1
+      unFinishCurrentPage: 1,
+      loading: false //加载
     };
   },
   computed: {
@@ -190,24 +203,46 @@ export default {
     },
     //收藏列表
     getCollectionList(moduleTypeId, page, mid) {
+      this.loading = true;
       this.api
         .getCollectionList(moduleTypeId, page, mid)
         .then(res => {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
           this.collectionList = res;
         })
         .catch(err => {
           console.log(err);
         });
     },
-
+    /**
+     * 收藏列表页号修改后
+     * @param {Number} pageIndex 页号
+     */
     queryCollectionByPage(pageIndex) {
-      console.log(pageIndex);
+      this.getCollectionList(
+        this.typeList[this.currentIndex].id,
+        pageIndex,
+        this.currentMode
+      );
+    },
+    //收藏页面
+    toCollectionPage(id) {
+      this.$router.push({
+        name: "collection",
+        params: { id: id }
+      });
     },
     //错题列表
     getMistakeList(moduleTypeId, page, mid) {
+      this.loading = true;
       this.api
         .getMistakeList(moduleTypeId, page, mid)
         .then(res => {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
           this.mistakeList = res;
         })
         .catch(err => {
@@ -243,9 +278,13 @@ export default {
      * @param {Number} mid 试题类型默认0
      */
     getDoExamRecords(complete, page, moduleTypeId, mid) {
+      this.loading = true;
       this.api
         .getDoExamRecords(complete, page, moduleTypeId, mid)
         .then(res => {
+          setTimeout(() => {
+            this.loading = false;
+          }, 500);
           if (complete == 0) {
             this.unFinishList = res;
           } else if (complete == 1) {
@@ -374,6 +413,14 @@ export default {
   height: 540px;
   background-color: #fff;
   margin-top: 20px;
+  .box-blank_tips {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 16px;
+    color: #909399;
+  }
 }
 
 .page-box-item {

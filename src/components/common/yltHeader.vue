@@ -108,6 +108,9 @@ export default {
   margin: 0 auto;
   width: 1200px;
   height: 100%;
+  .logo {
+    cursor: pointer;
+  }
 }
 
 .top-Navigation {

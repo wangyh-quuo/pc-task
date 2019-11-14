@@ -208,6 +208,21 @@ const api = {
     });
   },
   /**
+   *
+   * @param {Number} id 收藏试题id
+   */
+  getCollection(id) {
+    return new Promise((resolve, reject) => {
+      get(`/Collections/GetFavoriteDetails/${id}`)
+        .then(res => {
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  },
+  /**
    * 当前试题的答题卡
    * @param {Number} id 答题id
    * @param {Number} range 查询条件
@@ -305,6 +320,6 @@ const api = {
           reject(err);
         });
     });
-  },
+  }
 };
 export default api;

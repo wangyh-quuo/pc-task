@@ -79,11 +79,19 @@ const routes = [
       import(/* webpackChunkName: "mistake" */ "../views/practice/mistake.vue")
   },
   {
-    path: "/dailyPractice",
+    path: "/dailyPractice/:classifyId",
     name: "dailyPractice",
     component: () =>
       import(
         /* webpackChunkName: "dailyPractice" */ "../views/practice/dailyPractice.vue"
+      )
+  },
+  {
+    path: "/collection/:id",
+    name: "collection",
+    component: () =>
+      import(
+        /* webpackChunkName: "collection" */ "../views/practice/collection.vue"
       )
   }
 ];

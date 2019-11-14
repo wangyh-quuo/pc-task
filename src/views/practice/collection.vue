@@ -4,7 +4,7 @@
     <!-- 题目 -->
     <section class="exam-box">
       <div class="exam-list_box">
-        <div class="exam-list_content" v-for="(item,index1) of examList" :key="item.id">
+        <div class="exam-list_content" v-for="(item,index1) of collectionList" :key="item.id">
           <transition>
             <div v-show="currentIndex==index1">
               <div class="exam-title">
@@ -26,10 +26,13 @@
               <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
                 <div
                   class="exam-option__index"
-                  :class="cardList[index1]==index2?'exam-option__index__active':''"
-                  @click="chooseAnswer(index1,item.id,index2,item.answer)"
+                  :class="optionClass(item,index2)"
                 >{{ String.fromCharCode(0x41+index2) }}</div>
-                <div v-html="removeStyleFont(option)" class="exam-option__detail"></div>
+                <div
+                  v-html="removeStyleFont(option)"
+                  class="exam-option__detail"
+                  :style="fontColor(item,index2)"
+                ></div>
               </div>
             </div>
           </transition>
@@ -45,44 +48,30 @@
           </button>
         </div>
       </div>
-      <!-- 答题卡 -->
-      <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
-        <div class="exam-card_content">
-          <div class="exam-card_title">
-            <h2>答题卡</h2>
-            <p>共{{ examLength }}题</p>
-          </div>
-          <!-- 答题卡内容 -->
-          <div class="exam-card_index">
-            <span
-              :class="cardList[index]!=null?'card-active':''"
-              v-for="(item,index) of examLength"
-              :key="item"
-            >{{ item }}</span>
-          </div>
-          <div class="exam-card_tips">
-            <div style="color: #00b395;">
-              <span class="icon_ok"></span>
-              <span>已做</span>
-            </div>
-            <div style="color: #999;">
-              <span class="icon_no"></span>
-              <span>未做</span>
-            </div>
-          </div>
-        </div>
-        <div v-show="false">
-          <el-button>所有解析</el-button>
-          <el-button>只看错题</el-button>
-        </div>
-        <div class="submit-test">
-          <el-button @click="submitExam">交卷</el-button>
-        </div>
-      </div>
     </section>
     <!-- 解析 -->
-    <section></section>
+    <section class="solution-box">
+      <div v-for="(item,index) of collectionList" :key="item.id">
+        <transition>
+          <div class="solution-content" v-show="index==currentIndex">
+            <div class="solution-content__headline">
+              <p>
+                <span class="dajx">【答案解析】</span>
+              </p>
+              <p>
+                <span>正确答案：</span>
+                <span style="color: #00b395;" v-text="item.answer"></span>
+              </p>
+              <p>
+                <span>您选择的答案：</span>
+                <span style="color: #ff695e;" v-text="item.userSelect=='N'?'无':item.userSelect"></span>
+              </p>
+            </div>
+            <div class="solution-content_desc" v-html="item.analysis"></div>
+          </div>
+        </transition>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -92,13 +81,9 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      examList: [], //试题列表
       currentIndex: 0, //当前试题索引
       examLength: 0, //试题总数量
-      answerList: [], //用户选择答案列表
-      cardList: [], //答题卡内容
-      payTime: 0, //费时
-      timer: null,
+      collectionList: [], //答题卡内容
       records: [], // 做题记录
       isSaveLocalStorage: false //是否数据存储在本地
     };
@@ -117,69 +102,59 @@ export default {
     firstExam() {
       return this.currentIndex == 0 ? "button-disabled" : "button-active";
     },
-    //计时器
-    distance() {
-      return {
-        h: this.formatTime(parseInt((this.payTime / 3600) % 24)),
-        m: this.formatTime(parseInt((this.payTime / 60) % 60)),
-        s: this.formatTime(parseInt(this.payTime % 60))
+    optionClass() {
+      return function(item, index) {
+        if (String.fromCharCode(0x41 + index) == item.answer) {
+          //this.typeColor = "#00b395";
+          return "exam-option__index__ok";
+        } else {
+          if (item.userSelect != "N") {
+            if (String.fromCharCode(0x41 + index) == item.userSelect) {
+              //this.typeColor = "#ff965e";
+              return "exam-option__index__error";
+            }
+          }
+        }
+      };
+    },
+    fontColor() {
+      return function(item, index) {
+        if (String.fromCharCode(0x41 + index) == item.answer) {
+          return { color: "#00b395" };
+        } else {
+          if (item.userSelect != "N") {
+            if (String.fromCharCode(0x41 + index) == item.userSelect) {
+              return { color: "#ff965e" };
+            }
+          }
+        }
+      };
+    },
+    isDo() {
+      return function(item) {
+        if (item.userSelect == "N") {
+          return "card-no";
+        } else if (item.answer != item.userSelect) {
+          return "card-error";
+        } else {
+          return "card-active";
+        }
       };
     }
   },
   methods: {
     ...mapMutations(["setScoreReport"]),
     initPage() {
-      //获得做题列表
-      this.getTestDetails(this.$route.params.id);
-    },
-    restoreData() {
-      //从localStorage取回数据(做题记录)
-      try {
-        this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
-        //如果是当前试卷，则还原数据
-        for (const record of this.records) {
-          if (
-            record.id ==
-            `${this.$route.params.classifyId}/${this.$route.params.id}`
-          ) {
-            this.cardList = record.cardList;
-            this.payTime = record.payTime;
-            this.currentIndex = record.currentIndex;
-            this.answerList = record.answerList;
-            this.isSaveLocalStorage = true;
-            break;
-          }
-        }
-      } catch (err) {
-        console.log(err);
-      }
+      //获得错题
+      this.getCollection(this.$route.params.id);
     },
     //请求数据
-    getTestDetails(id) {
-      this.api
-        .getTestDetails(id)
-        .then(res => {
-          this.examList = res;
-          this.examLength = this.examList.length;
-          //开启定时器
-          this.timer = setInterval(() => {
-            this.payTime++;
-          }, 1000);
-          //初始化答题卡
-          for (let i = 0; i < this.examList.length; i++) {
-            this.answerList[i] = {
-              index: i,
-              id: this.examList[i].id,
-              userSelect: "N",
-              rightOption: this.examList[i].answer
-            };
-          }
-          //恢复数据
-          this.restoreData();
-        })
-        .catch(err => {
-          console.log(err);
-        });
+    getCollection(id) {
+      this.api.getCollection(id).then(res => {
+        console.log(res);
+        this.collectionList = res;
+        this.examLength = res.length;
+      });
     },
     removeStyleFont(content) {
       return content.replace(/style="\S+"/g, "");
@@ -193,7 +168,7 @@ export default {
       if (this.currentIndex == 0) {
         this.$message({
           type: "info",
-          message: "这是第一题!"
+          message: "到顶了!"
         });
         return;
       }
@@ -202,87 +177,13 @@ export default {
     //下一题
     nextExam() {
       if (this.currentIndex == this.examLength - 1) {
-        this.submitExam();
+        this.$message({
+          type: "info",
+          message: "到底了!"
+        });
         return;
       }
       this.currentIndex++;
-    },
-    /**
-     * 选择答案
-     * @param { Number } index 索引
-     * @param { Number } id 题目id
-     * @param { Number } userSelect 用户选择
-     * @param { Number } rightOption 正确答案
-     */
-    chooseAnswer(index, id, userSelect, rightOption) {
-      if (!this.answerList[index]) {
-        this.answerList[index] = {};
-      }
-      //封装答案
-      this.answerList[index] = {
-        index,
-        id,
-        userSelect: String.fromCharCode(0x41 + userSelect),
-        rightOption
-      };
-      if (!this.cardList[index]) {
-        this.$set(this.cardList, index, "");
-      }
-      //填充答题卡
-      this.$set(this.cardList, index, userSelect);
-    },
-    /* 交卷     */
-    submitExam() {
-      let rquestModel = {
-        complete: true, //保存做题记录
-        moduleTypeId: this.typeList[this.currentTypeIndex].id,
-        useTime: this.payTime,
-        answerSheets: this.answerList,
-        mid: this.$route.params.classifyId
-      };
-      //TODO: 提交试卷
-      if (this.cardList.length != this.examLength) {
-        rquestModel.complete = false; //未做完
-        this.$confirm("您还有未做的题, 是否继续提交试卷?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            this.requestSubmitExam(this.$route.params.id, rquestModel);
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消"
-            });
-          });
-      } else {
-        this.$confirm("是否提交试卷?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            this.requestSubmitExam(this.$route.params.id, rquestModel);
-          })
-          .catch(() => {
-            return;
-          });
-      }
-    },
-    requestSubmitExam(id, rquestModel) {
-      this.api.submitTest(id, rquestModel).then(res => {
-        this.setScoreReport(res);
-        this.$message({
-          type: "success",
-          message: "交卷成功!"
-        });
-        this.$router.push({
-          name: "report",
-          params: { testId: this.$route.params.id, id: res.id }
-        });
-      });
     },
     /* 收藏 */
     addCollection(id, el) {
@@ -312,55 +213,6 @@ export default {
             message: "出错了!"
           });
         });
-    }
-  },
-  beforeRouteLeave(to, from, next) {
-    if (this.cardList.length != this.examLength) {
-      this.$confirm(
-        "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }
-      )
-        .then(() => {
-          //离开前保存数据
-          if (!this.isSaveLocalStorage) {
-            this.records.push({
-              id: `${from.params.classifyId}/${from.params.id}`,
-              payTime: this.payTime,
-              currentIndex: this.currentIndex,
-              cardList: this.cardList,
-              answerList: this.answerList
-            });
-          } else {
-            for (let i = 0; i < this.records.length; i++) {
-              if (
-                this.records[i].id ==
-                `${from.params.classifyId}/${from.params.id}`
-              ) {
-                this.records[i] = {
-                  id: `${from.params.classifyId}/${from.params.id}`,
-                  payTime: this.payTime,
-                  currentIndex: this.currentIndex,
-                  cardList: this.cardList,
-                  answerList: this.answerList
-                };
-                break;
-              }
-            }
-          }
-          localStorage.setItem("doExamRecord", JSON.stringify(this.records));
-          next();
-        })
-        .catch(err => {
-          console.log(err);
-          next(false);
-        });
-    } else {
-      next();
     }
   },
   components: {
@@ -435,6 +287,16 @@ export default {
             color: #fff;
             background: linear-gradient(0, #ffd073, #ffca4f);
           }
+          .exam-option__index__error {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #ff8f70, #ff7c6e);
+          }
+          .exam-option__index__ok {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #00c9ab, #00b295);
+          }
           .exam-option__detail {
             margin-left: 20px;
           }
@@ -500,6 +362,7 @@ export default {
       .exam-card_index {
         display: flex;
         align-items: center;
+        align-content: flex-start;
         flex-wrap: wrap;
         height: 420px;
         overflow: auto;
@@ -559,6 +422,36 @@ export default {
           font-size: 24px;
           background-color: #00b395;
         }
+      }
+    }
+  }
+  .solution-box {
+    margin: 0 auto;
+    width: 1200px;
+    background: #fff;
+    .solution-content {
+      padding: 40px;
+      .solution-content__headline {
+        display: flex;
+        p {
+          margin-right: 40px;
+          span {
+            font-size: 20px;
+            line-height: 24px;
+          }
+        }
+        .dajx {
+          color: #1e1e1e;
+          font-weight: bold;
+          font-size: 24px;
+        }
+      }
+      .solution-content_desc {
+        margin-top: 40px;
+        width: 800px;
+        font-size: 20px;
+        color: #333;
+        line-height: 1.5;
       }
     }
   }

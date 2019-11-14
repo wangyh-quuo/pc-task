@@ -221,12 +221,6 @@ export default {
      * @param { Number } rightOption 正确答案
      */
     chooseAnswer(index, id, userSelect, rightOption) {
-      console.log(
-        index,
-        id,
-        String.fromCharCode(0x41 + userSelect),
-        rightOption
-      );
       if (!this.answerList[index]) {
         this.answerList[index] = {};
       }
