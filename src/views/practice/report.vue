@@ -8,8 +8,8 @@
             type="circle"
             :percentage="scoreReport.percent"
             :stroke-width="12"
-            color="#00b395"
             :width="160"
+            color= "#00b395"
           ></el-progress>
           <p>正确率</p>
         </div>
@@ -160,7 +160,10 @@ export default {
         text-align: center;
       }
     }
-
+    .report-progress /deep/ .el-progress__text {
+      font-size: 56px!important;
+      color: #00b395;
+    }
     .page-content__report-ifo {
       height: 100%;
       margin-left: 40px;

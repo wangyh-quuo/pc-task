@@ -263,6 +263,7 @@ export default {
           }
         }
         .exam-headline {
+          margin-bottom: 16px;
           font-size: 22px;
           color: #1e1e1e;
           font-weight: bold;
@@ -455,7 +456,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 1.5;
+        line-height: 2;
       }
     }
   }

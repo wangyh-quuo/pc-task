@@ -16,7 +16,7 @@ const routes = [
     name: "404",
     component: () =>
       import(
-        /* webpackChunkName: "practiceLogin" */ "../views/notFound/notFound.vue"
+        /* webpackChunkName: "notFound" */ "../views/notFound/notFound.vue"
       )
   },
   {

@@ -406,7 +406,7 @@ export default {
 
 <style lang="scss" scoped>
 .content-nav {
-  width: 960px;
+  width: 1000px;
 }
 .page-box {
   position: relative;

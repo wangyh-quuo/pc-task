@@ -107,6 +107,7 @@
               :class="isDo(item,index)"
               v-for="(item,index) of answerCardList"
               :key="item.id"
+              @click="currentIndex=index"
             >{{ index+1 }}</span>
           </div>
           <div class="exam-card_tips">
@@ -409,6 +410,7 @@ export default {
           }
         }
         .exam-headline {
+          margin-bottom: 16px;
           font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;
@@ -525,6 +527,7 @@ export default {
           color: #00b395;
           text-align: center;
           border-radius: 50%;
+           cursor: pointer;
         }
         .card-active {
           background: linear-gradient(0, #00c9a8, #00b295);
@@ -625,7 +628,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 1.5;
+        line-height: 2;
       }
     }
   }

@@ -44,7 +44,7 @@ export default {
   position: relative;
   justify-content: center;  
   .page-content__nav {
-    max-width: 960px;
+    max-width: 1000px;
     height: 632px;
     margin-left: 40px;
     .page-content__center {

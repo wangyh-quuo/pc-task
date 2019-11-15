@@ -64,6 +64,7 @@
               :class="cardList[index]!=null?'card-active':''"
               v-for="(item,index) of examLength"
               :key="item"
+              @click="currentIndex=index"
             >{{ item }}</span>
           </div>
           <div class="exam-card_tips">
@@ -412,6 +413,7 @@ export default {
           color: #1e1e1e;
           font-weight: bold;
           line-height: 28px;
+          margin-bottom: 16px;
         }
         .exam-option {
           display: flex;
@@ -537,6 +539,7 @@ export default {
           text-align: center;
           border-radius: 50%;
           border: 1px solid #00b395;
+          cursor: pointer;
         }
         .card-active {
           background: #00b395;
@@ -612,7 +615,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 1.5;
+        line-height: 2;
       }
     }
   }

@@ -456,7 +456,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 1.5;
+        line-height: 2;
       }
     }
   }

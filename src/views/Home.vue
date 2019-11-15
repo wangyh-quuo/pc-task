@@ -49,7 +49,7 @@
           <div class="bottom-right-content">
             <img src="@/assets/image/jkmn_side .png" alt />
             <p class="brc-p1">机考模拟</p>
-            <p class="brc-p2">模拟真实机考，做好充分准备</p>
+            <p class="brc-p2">真实模拟计算机考试<br/> 合理把控做题时间</p>
             <button class="Start-practicing" @click="toPracticeTest">开始机考</button>
           </div>
         </div>
@@ -283,8 +283,8 @@ export default {
       margin: 20px auto;
       font-size: 16px;
       color: #999999;
-      text-align: left;
-      line-height: 20px;
+      text-align: center;
+      line-height: 24px;
     }
     .Start-practicing {
       width: 160px;

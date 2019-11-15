@@ -321,6 +321,7 @@ export default {
       }
       .exam-headline {
         padding: 14px 10px;
+        margin-bottom: 16px;
         font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;

@@ -1,7 +1,7 @@
 <template>
   <div class="box__left">
     <div class="info-avater">
-      <img src="@/assets/image/practiceTest/avater_icon.png" alt />
+      <img src="@/assets/image/practiceTest/avater_icon@2x.png" alt />
     </div>
     <div class="info-txt">
       <p>考生:{{ userName }}</p>
@@ -140,8 +140,6 @@ export default {
     padding-left: 10px;
   }
   .info-avater img {
-    width: 66px;
-    height: 78px;
     border: 1px dashed #888;
   }
   .info-txt {
@@ -162,6 +160,15 @@ export default {
     color: #9a9a9a;
     background: #c7c7c7;
     border: none;
+  }
+  .no-answer {
+    background: #ff8a94 !important;
+    color: #0a01d6;
+  }
+
+  .has-question {
+    background: #fffa96 !important;
+    color: #0a01d6;
   }
 }
 </style>
