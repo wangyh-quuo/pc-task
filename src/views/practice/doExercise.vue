@@ -23,13 +23,22 @@
                 </p>
               </div>
               <div class="exam-headline" v-html="removeStyleFont(item.stem)"></div>
-              <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
+              <div
+                class="exam-option"
+                v-for="(option,index2) of item.option"
+                :key="index2"
+                @click="chooseAnswer(index1,item.id,index2,item.answer)"
+                :style="cardList[index1]==index2?{'background-color': '#f7f8fa'}:''"
+              >
                 <div
                   class="exam-option__index"
                   :class="cardList[index1]==index2?'exam-option__index__active':''"
-                  @click="chooseAnswer(index1,item.id,index2,item.answer)"
                 >{{ String.fromCharCode(0x41+index2) }}</div>
-                <div v-html="removeStyleFont(option)" class="exam-option__detail"></div>
+                <div
+                  v-html="removeStyleFont(option)"
+                  class="exam-option__detail"
+                  :class="cardList[index1]==index2?'exam-option__detail__active':''"
+                ></div>
               </div>
             </div>
           </transition>
@@ -89,7 +98,7 @@
 <script>
 import yltHeader from "@/components/common/yltHeader";
 import { mapState, mapMutations } from "vuex";
-import { nextTick } from 'q';
+import { nextTick } from "q";
 export default {
   data() {
     return {
@@ -106,9 +115,9 @@ export default {
     };
   },
   mounted() {
-    nextTick(()=>{
+    nextTick(() => {
       this.initPage();
-    })
+    });
   },
   computed: {
     //...mapState(["userInfo", "typeList", "currentIndex"]),
@@ -137,37 +146,36 @@ export default {
       this.getTestDetails(this.$route.params.id);
     },
     restoreData() {
-
       //从localStorage取回数据(做题记录)
-        try {
-          this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
-          //如果是当前试卷，则还原数据
-          for (const record of this.records) {
-            if (
-              record.id ==
-              `${this.$route.params.classifyId}/${this.$route.params.id}`
-            ) {
-              this.cardList = record.cardList;
-              this.payTime = record.payTime;
-              this.currentIndex = record.currentIndex;
-              this.answerList = record.answerList;
-              this.isSaveLocalStorage = true;
-              break;
-            }
+      try {
+        this.records = JSON.parse(localStorage.getItem("doExamRecord")) || [];
+        //如果是当前试卷，则还原数据
+        for (const record of this.records) {
+          if (
+            record.id ==
+            `${this.$route.params.classifyId}/${this.$route.params.id}`
+          ) {
+            this.cardList = record.cardList;
+            this.payTime = record.payTime;
+            this.currentIndex = record.currentIndex;
+            this.answerList = record.answerList;
+            this.isSaveLocalStorage = true;
+            break;
           }
-        } catch (err) {
-          console.log(err);
         }
+      } catch (err) {
+        console.log(err);
+      }
       //获得上次做题记录
       if (this.lastAnswerCardList.length == this.examLength) {
         this.examList = this.lastAnswerCardList;
         for (let i = 0; i < this.examLength; i++) {
-         if(this.examList[i].userSelect!='N'){
-           this.$set(this.cardList, i, i);
-           this.answerList[i].userSelect = this.examList[i].userSelect;
-         }
+          if (this.examList[i].userSelect != "N") {
+            this.$set(this.cardList, i, i);
+            this.answerList[i].userSelect = this.examList[i].userSelect;
+          }
         }
-      } 
+      }
     },
     //请求数据
     async getTestDetails(id) {
@@ -397,8 +405,9 @@ export default {
     margin: 16px auto;
     width: 1200px;
     .exam-list_box {
+      position: relative;
       width: 760px;
-      min-height: 668px;
+      min-height: 400px;
       background: #fff;
       .exam-list_content {
         padding-left: 40px;
@@ -429,7 +438,7 @@ export default {
           }
         }
         .exam-headline {
-          font-size: 22px;
+          font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;
           line-height: 28px;
@@ -438,10 +447,13 @@ export default {
           display: flex;
           align-items: center;
           padding: 20px 0;
+          margin-right: 20px;
           font-size: 18px;
           color: #666;
+          cursor: pointer;
           .exam-option__index {
-            width: 24px;
+            box-sizing: border-box;
+            min-width: 24px;
             height: 24px;
             text-align: center;
             line-height: 24px;
@@ -452,16 +464,28 @@ export default {
           .exam-option__index__active {
             color: #fff;
             background: linear-gradient(0, #ffd073, #ffca4f);
+            border: none;
           }
           .exam-option__detail {
             margin-left: 20px;
+            line-height: 1.5;
           }
+          .exam-option__detail__active {
+            color: #ffd073;
+          }
+        }
+        .exam-option:hover {
+          background: #f2f4f7;
         }
       }
       .button-box {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
         display: flex;
         justify-content: space-around;
-        margin: 80px 120px;
+        width: 500px;
         font-size: 14px;
         button {
           -webkit-appearance: none;
@@ -489,7 +513,7 @@ export default {
       flex: 1;
       width: 400px;
       padding: 0 20px;
-      min-height: 668px;
+      min-height: 400px;
       background: #fff;
       .exam-card_time {
         height: 56px;
@@ -520,7 +544,7 @@ export default {
         align-items: center;
         align-content: flex-start;
         flex-wrap: wrap;
-        height: 420px;
+        height: 300px;
         overflow: auto;
         span {
           box-sizing: border-box;
@@ -575,7 +599,7 @@ export default {
           width: 360px;
           height: 56px;
           color: #fff;
-          font-size: 24px;
+          font-size: 20px;
           background-color: #00b395;
         }
       }

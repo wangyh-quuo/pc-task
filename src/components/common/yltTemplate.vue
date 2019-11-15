@@ -2,7 +2,7 @@
   <div class="ylt-box">
     <ylt-header></ylt-header>
     <div class="page-content">
-      <ylt-side-nav></ylt-side-nav>
+      <ylt-side-nav v-if="visiable"></ylt-side-nav>
       <div class="page-content__nav">
         <!-- <ylt-nav-bar></ylt-nav-bar> -->
         <slot name="content-top"></slot>
@@ -22,8 +22,11 @@ import yltHeader from "@/components/common/yltHeader";
 import yltSideNav from "@/components/common/yltSideNav";
 // import yltNavBar from "@/components/common/yltNavBar";
 export default {
-  data() {
-    return { visible: false };
+  props: {
+    visiable: {
+      type: Boolean,
+      default: true
+    }
   },
   components: {
     yltHeader,
@@ -39,7 +42,7 @@ export default {
   margin: 16px auto;
   display: flex;
   position: relative;
-  flex-direction: row;
+  justify-content: center;  
   .page-content__nav {
     max-width: 960px;
     height: 632px;

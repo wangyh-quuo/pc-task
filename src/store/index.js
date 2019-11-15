@@ -13,7 +13,8 @@ export default new Vuex.Store({
     currentIndex: localStorage.getItem("currentIndex") || 0, //当前选择的类别索引
     modeClassifyList: [], //报考类别下的试卷类型模块
     doExamList: [], //做题类别列表
-    scoreReport: JSON.parse(localStorage.getItem("scoreReport")) || {} //交卷成绩
+    scoreReport: JSON.parse(localStorage.getItem("scoreReport")) || {}, //交卷成绩
+    computerExamList: JSON.parse(localStorage.getItem("computerExamList")) || [] //机考列表
   },
   mutations: {
     //设置侧边栏位置
@@ -53,6 +54,11 @@ export default new Vuex.Store({
       state.scoreReport = scoreReport;
       const _scoreReport = JSON.stringify(scoreReport);
       localStorage.setItem("scoreReport", _scoreReport);
+    },
+    setComputerExamList(state, computerExamList) {
+      state.computerExamList = computerExamList;
+      const _computerExamList = JSON.stringify(computerExamList);
+      localStorage.setItem("computerExamList", _computerExamList);
     }
   },
   actions: {},

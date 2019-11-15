@@ -320,6 +320,21 @@ const api = {
           reject(err);
         });
     });
+  },
+  /**
+   * 机考
+   * @param {Number} id //报考类别
+   */
+  getComputerExam(id) {
+    return new Promise((resolve, reject) => {
+      get(`/Test/ComputerExam/${id}`)
+        .then(res => {
+          resolve(res.data.results);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
   }
 };
 export default api;

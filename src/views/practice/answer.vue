@@ -377,8 +377,9 @@ export default {
     margin: 16px auto;
     width: 1200px;
     .exam-list_box {
+      position: relative;
       width: 760px;
-      min-height: 668px;
+      min-height: 400px;
       background: #fff;
       .exam-list_content {
         padding-left: 40px;
@@ -408,7 +409,7 @@ export default {
           }
         }
         .exam-headline {
-          font-size: 22px;
+          font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;
           line-height: 28px;
@@ -417,21 +418,18 @@ export default {
           display: flex;
           align-items: center;
           padding: 20px 0;
+          margin-right: 20px;
           font-size: 18px;
           color: #666;
           .exam-option__index {
             box-sizing: border-box;
-            width: 24px;
+            min-width: 24px;
             height: 24px;
             text-align: center;
             line-height: 24px;
             border: 1px solid #666;
             border-radius: 50%;
             cursor: pointer;
-          }
-          .exam-option__index__active {
-            color: #fff;
-            background: linear-gradient(0, #ffd073, #ffca4f);
           }
           .exam-option__index__error {
             color: #fff;
@@ -445,13 +443,18 @@ export default {
           }
           .exam-option__detail {
             margin-left: 20px;
+            line-height: 1.5;
           }
         }
       }
       .button-box {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
         display: flex;
         justify-content: space-around;
-        margin: 80px 120px;
+        width: 300px;
         font-size: 14px;
         button {
           -webkit-appearance: none;
@@ -479,7 +482,7 @@ export default {
       flex: 1;
       width: 400px;
       padding: 0 20px;
-      min-height: 668px;
+     min-height: 400px;
       background: #fff;
       .exam-card_time {
         height: 56px;
@@ -510,7 +513,7 @@ export default {
         align-items: center;
         align-content: flex-start;
         flex-wrap: wrap;
-        height: 420px;
+        height: 300px;
         overflow: auto;
         span {
           box-sizing: border-box;

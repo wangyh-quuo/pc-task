@@ -31,7 +31,7 @@ const routes = [
       import(/* webpackChunkName: "practiceLogin" */ "../views/exam/login.vue")
   },
   {
-    path: "/exam/practiceTest",
+    path: "/exam/practiceTest/:idNumber",
     name: "practiceTest",
     component: () =>
       import(
@@ -39,7 +39,7 @@ const routes = [
       )
   },
   {
-    path: "/exam/doExam",
+    path: "/exam/doExam/:idNumber",
     name: "doExam",
     component: () =>
       import(/* webpackChunkName: "doExam" */ "../views/exam/doExam.vue")

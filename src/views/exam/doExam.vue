@@ -1,173 +1,168 @@
 <template>
   <div class="practice-test">
-    <ylt-template>
-      <template #content-top>
-        <div class="content-nav"></div>
-      </template>
-      <template #content-center>
-        <div class="bottom-right__info">
-          <div class="box__left">
-            <div class="info-avater">
-              <img src="@/assets/image/practiceTest/avater_icon.png" alt />
-            </div>
-            <div class="info-txt">
-              <p>考生:体验考生</p>
-              <p>test001</p>
-            </div>
-            <div class="info-txt">体验试卷</div>
-            <div class="info-txt">
-              <p>考试时间</p>
-              <p>2018-08-08 10:30-</p>
-              <p>2020-07-07 10:30</p>
-              <p style="color: #FF0000;">剩余时间</p>
-              <p style="color: #FF0000;">5878小时1分</p>
-            </div>
-            <div class="info-txt">
-              <p>
-                未答题数：
-                <span class="no-answer">0</span>
-              </p>
-              <p>
-                标疑题数：
-                <span class="has-question">0</span>
-              </p>
-            </div>
-            <div class="info-txt" style="text-align: center;">
-              <button class="refresh-btn">刷新</button>
-            </div>
-          </div>
-          <div class="box__right" id="practicExam">
-            <div class="box__right-content">
-              <p class="exam-type">
-                题型：
-                <span class="exam-type__name">A1</span>
-              </p>
-              <div
-                class="exam-headline"
-              >每一道试题下面有A、B、C、D、E五个备选答案,请从中选择一个最佳答案,并用鼠标选中相应答案前的方框,以示正确答案,备选答案前的选择框中出现"√“即为选中。</div>
-              <div class="exam-list" id="examList">
-                <div v-for="(item,index) of examList" :key="index" v-show="index==currentIndex">
-                  <p class="exam-index">第{{ index+1 }}题</p>
-                  <p class="exam-title__desc">xxxxxx德威尔（Dever）将影响健康的因素分为四大类，除了</p>
-                  <p class="exam-choose">
-                    <input type="radio" name="choose" id />
-                    <label for="sex1"></label>
-                    <span>A. 环境因素x</span>
-                  </p>
-                  <p class="exam-choose">
-                    <input type="radio" name="choose" id />
-                    <label for="sex1"></label>
-                    <span>B. 环境因素x</span>
-                  </p>
-                  <p class="exam-choose">
-                    <input type="radio" name="choose" id />
-                    <label for="sex1"></label>
-                    <span>C. 环境因素x</span>
-                  </p>
-                  <p class="exam-choose">
-                    <input type="radio" name="choose" id />
-                    <label for="sex1"></label>
-                    <span>D. 环境因素x</span>
-                  </p>
-                  <p class="exam-choose">
-                    <input type="radio" name="choose" id />
-                    <label for="sex1"></label>
-                    <span>E. 环境因素x</span>
-                  </p>
-                </div>
+    <div class="bottom-right__info">
+      <test-info :signQuestionLength="signQuestionLength" :notDoLength="notDoLength"></test-info>
+      <div class="box__right" id="practicExam">
+        <div class="box__right-content">
+          <p class="exam-type">
+            题型：
+            <span
+              class="exam-type__name"
+              v-show="currentIndex==index"
+              v-for="(item,index) of computerExamList"
+              :key="item.id"
+            >{{item.questionType}}</span>
+          </p>
+          <div
+            class="exam-headline"
+          >每一道试题下面有A、B、C、D、E五个备选答案,请从中选择一个最佳答案,并用鼠标选中相应答案前的方框,以示正确答案,备选答案前的选择框中出现"√“即为选中。</div>
+          <div class="exam-list" id="examList">
+            <div
+              v-for="(item,index1) of computerExamList"
+              :key="index1"
+              v-show="index1==currentIndex"
+            >
+              <p class="exam-index">第{{ index1+1 }}题</p>
+              <div class="exam-title__desc" v-html="removeStyleFont(item.stem)"></div>
+              <div class="exam-choose" v-for="(option,index2) of item.option" :key="option.id">
+                <input
+                  type="radio"
+                  :name="index1"
+                  :v-model="cardList[index1]==index2"
+                  @click="chooseOption(index2)"
+                />
+                <label for="sex1"></label>
+                <div class="exam-option" v-html="removeStyleFont(option)"></div>
               </div>
-            </div>
-            <div class="confirm-btn_box">
-              <button class="confirm-btn" @click="signQuestion">标疑</button>
-              <button class="confirm-btn" @click="toNoAnswer">转到未答题</button>
-              <button class="confirm-btn" @click="toSignQuestion">转到标疑题</button>
-              <button class="confirm-btn" @click="prevQuestion">上一题</button>
-              <button class="confirm-btn" @click="nextQuestion">下一题</button>
-              <button class="confirm-btn" @click="finishTest">完成考试</button>
-            </div>
-            <p class="exam-statement">
-              颜色说明：
-              <span class="has-question">黄色</span>
-              表示标疑试题，
-              <span class="no-answer">红色</span>
-              表示未做答试题，灰色
-              表示已做答试题。点击题号数字即可跳转至该题。
-            </p>
-            <div class="exam-index__choose">
-              <div class="exam-index__arrow">&lt;</div>
-              <div class="exam-index__content">
-                <span>1</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-                <span>6</span>
-                <span>7</span>
-                <span class="has-question">8</span>
-                <span>9</span>
-                <span>10</span>
-                <span class="no-answer">11</span>
-                <span>12</span>
-                <span>13</span>
-                <span>14</span>
-                <span>15</span>
-                <span>16</span>
-                <span>17</span>
-                <span>18</span>
-                <span>19</span>
-                <span>20</span>
-                <span>21</span>
-              </div>
-              <div class="exam-index__arrow">&gt;</div>
             </div>
           </div>
         </div>
-      </template>
-    </ylt-template>
+        <div class="confirm-btn_box">
+          <button class="confirm-btn" @click="signQuestion">标疑</button>
+          <button class="confirm-btn" @click="toNoAnswer">转到未答题</button>
+          <button class="confirm-btn" @click="toSignQuestion">转到标疑题</button>
+          <button class="confirm-btn" @click="prevQuestion">上一题</button>
+          <button class="confirm-btn" @click="nextQuestion">下一题</button>
+          <button class="confirm-btn" @click="finishTest">完成考试</button>
+        </div>
+        <p class="exam-statement">
+          颜色说明：
+          <span class="has-question">黄色</span>
+          表示标疑试题，
+          <span class="no-answer">红色</span>
+          表示未做答试题，灰色
+          表示已做答试题。点击题号数字即可跳转至该题。
+        </p>
+        <div class="exam-index__choose">
+          <div class="exam-index__arrow" @click="prevPage">&lt;</div>
+          <div class="exam-index__content">
+            <div
+              class="exam-index__box"
+              v-for="(pages,index1) of pageList"
+              :key="index1"
+              v-show="currentPage==index1"
+            >
+              <div>
+                <span
+                  v-for="(item,index2) of pages"
+                  :key="item.id"
+                  class="no-answer"
+                  :class="indexClass(index2+index1*60)"
+                  @click="currentIndex = index2+index1*60"
+                >{{ index2+index1*60+1 }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="exam-index__arrow" @click="nextPage">&gt;</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import yltTemplate from "@/components/common/yltTemplate";
+import testInfo from "@/components/exam/testInfo";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
-      examList: [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20
-      ],
-      currentIndex: 1, //当前题号
-      signQuestionList: [2, 5], //标疑题列表
-      currentSignQuestionIndex: "" //当前标疑题
+      currentIndex: 0, //当前题号
+      cardList: [], //答题卡
+      signQuestionList: [], //标疑题列表
+      currentSignQuestionIndex: "", //当前标疑题
+      signQuestionLength: 0, //标疑长度
+      notDoLength: 0, //未做长度
+      notDoList: [], //未做列表
+      currentNotDoIndex: "",
+      pageList: [],
+      pageSize: 60,
+      pageCount: 0,
+      currentPage: 0
     };
   },
+  mounted() {
+    for (let i = 0; i < this.computerExamList.length; i++) {
+      this.notDoList.push(i);
+    }
+    this.notDoLength = this.notDoList.length;
+    this.pageCount = Math.ceil(this.computerExamList.length / this.pageSize);
+    //题号分页
+    this.setPageList(this.pageSize);
+  },
+  computed: {
+    ...mapState(["computerExamList"]),
+    indexClass() {
+      return function(index) {
+        //是否标疑
+        let isSign = false;
+        this.signQuestionList.some(item => {
+          if (item == index) {
+            isSign = true;
+            return item == index;
+          }
+        });
+        if (isSign) {
+          return "has-question";
+        } else {
+          if (this.cardList[index] != null) {
+            return "has-do";
+          }
+        }
+      };
+    }
+  },
   methods: {
+    removeStyleFont(content) {
+      return content.replace(/style="(.*)"/gi, "");
+    },
+    /**
+     * 标疑
+     */
     signQuestion() {
-      this.signQuestionList.push(this.currentIndex);
-      this.signQuestionList.sort();
-      //TODO: 下方list标黄色
+      if (this.signQuestionList.indexOf(this.currentIndex) == -1) {
+        this.signQuestionList.push(this.currentIndex);
+        this.signQuestionList.sort();
+        this.signQuestionLength++;
+      }
     },
     //转到未答题
-    toNoAnswer() {},
+    toNoAnswer() {
+       if (this.notDoList.length == 0) {
+        return;
+      }
+      let index = this.notDoList.indexOf(this.notDcurrentNotDoIndex);
+      if (index != -1 && index < this.notDoList.length) {
+        this.currentIndex = this.notDcurrentNotDoIndex;
+        this.notDcurrentNotDoIndex = this.notDoList[
+          ++index % this.notDoList.length
+        ];
+      } else {
+        //初始为0
+        this.notDcurrentNotDoIndex = this.notDoList[0];
+        this.currentIndex = this.notDcurrentNotDoIndex;
+      }
+      this.getCurrentPages(this.currentIndex);
+    },
     /**
      * 点击转到标疑题
      * 从标疑题list中顺序循环显示标疑题
@@ -182,7 +177,12 @@ export default {
         this.currentSignQuestionIndex = this.signQuestionList[
           ++index % this.signQuestionList.length
         ];
+      } else {
+        //初始为0
+        this.currentSignQuestionIndex = this.signQuestionList[0];
+        this.currentIndex = this.currentSignQuestionIndex;
       }
+      this.getCurrentPages(this.currentIndex);
     },
     //上一题
     prevQuestion() {
@@ -195,11 +195,12 @@ export default {
         return;
       }
       this.currentIndex--;
+      this.getCurrentPages(this.currentIndex);
     },
     //下一题
     nextQuestion() {
-      if (this.currentIndex >= 19) {
-        this.currentIndex = 19;
+      if (this.currentIndex >= this.computerExamList.length - 1) {
+        this.currentIndex = this.computerExamList.length - 1;
         this.$message({
           type: "info",
           message: "这是最后一题!"
@@ -207,73 +208,99 @@ export default {
         return;
       }
       this.currentIndex++;
+      this.getCurrentPages(this.currentIndex);
+    },
+    //选择选项
+    chooseOption(index) {
+      this.$set(this.cardList, this.currentIndex, index);
+      this.notDoList.pop(index);
+      this.notDoLength = this.notDoList.length;
     },
     //完成考试
-    finishTest() {}
-    //显示当前题号
+    finishTest() {
+      if (this.notDoLength == 0) {
+        this.$confirm("交卷", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(() => {
+          this.$message({
+            type: "info",
+            message: "提交成功!"
+          });
+          this.$router.push({ name: "home" });
+        });
+      } else {
+        this.$confirm(`您还有${this.notDoLength}题未答?`, "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        });
+      }
+    },
+    setPageList(pageSize) {
+      let page = 0;
+      for (page; page < this.pageCount; page++) {
+        if (!this.pageList[page]) {
+          this.pageList[page] = [];
+        }
+        let start = page * pageSize;
+        let end =
+          (page + 1) * pageSize < this.computerExamList.length
+            ? (page + 1) * pageSize
+            : this.computerExamList.length;
+        this.pageList[page] = this.computerExamList.slice(start, end);
+      }
+    },
+    prevPage() {
+      if (this.currentPage == 0) {
+        return;
+      }
+      this.currentPage--;
+    },
+    nextPage() {
+      if (this.currentPage == this.pageCount - 1) {
+        return;
+      }
+      this.currentPage++;
+    },
+    getCurrentPages(index) {
+      this.currentPage = Math.floor(index / this.pageSize);
+    }
   },
   components: {
-    yltTemplate
+    testInfo
   }
 };
 </script>
 
 <style lang="scss" scoped>
+.practice-test {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
 .content-nav {
   width: 960px;
 }
 .bottom-right__info {
+  height: 100%;
   position: relative;
   display: flex;
-  margin-top: 20px;
-  width: 100%;
+  margin: 0 auto;
   background: #fff;
   text-align: initial;
   flex-wrap: wrap;
-  .box__left {
-    padding-left: 200px;
-    border-right: 1px solid #e9e9e9;
-    div {
-      border-bottom: 1px solid #e9e9e9;
-    }
-    .info-avater {
-      padding-top: 2px;
-      padding-left: 10px;
-    }
-    .info-avater img {
-      width: 66px;
-      height: 78px;
-      border: 1px dashed #888;
-    }
-    .info-txt {
-      position: relative;
-      padding: 5px 10px;
-      font-size: 6px;
-      font-family: Microsoft YaHei;
-      font-weight: 400;
-      line-height: 2;
-      border-bottom: 1px solid #e9e9e9;
-    }
-    .refresh-btn {
-      width: 60px;
-      line-height: 1.5;
-      font-size: 6px;
-      font-family: Source Han Sans CN;
-      font-weight: bold;
-      color: #9a9a9a;
-      background: #c7c7c7;
-      border: none;
-    }
-  }
   .box__right {
     position: relative;
     flex: 1;
-
+    background: #fff;
     .confirm-btn_box {
       text-align: center;
     }
     .confirm-btn {
       padding: 8px 14px;
+      font-size: 20px;
       background: #ccc;
       border: 1px solid #a7a7a7;
       border-radius: 2px;
@@ -282,42 +309,43 @@ export default {
       .exam-type {
         padding-top: 20px;
         padding-left: 6px;
-        font-size: 6px;
+        font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;
         line-height: 2;
         .exam-type__name {
-          font-size: 10px;
+          font-size: 0.24rem;
           color: #ff0000;
           line-height: 2;
         }
       }
       .exam-headline {
         padding: 14px 10px;
-        font-size: 6px;
+        font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;
         line-height: 2;
       }
       .exam-index {
         margin: 16px 0 0 10px;
-        font-size: 6px;
+        font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;
         line-height: 2;
       }
       .exam-title__desc {
         padding-left: 10px;
-        font-size: 8px;
+        font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;
         line-height: 2;
       }
       .exam-choose {
+        display: flex;
         position: relative;
         padding-left: 10px;
         margin-top: 10px;
-        font-size: 8px;
+        font-size: 0.2rem;
         font-family: Microsoft YaHei;
         font-weight: 400;
         line-height: 2;
@@ -329,8 +357,8 @@ export default {
           z-index: 10;
           left: 10px;
           top: 6px;
-          width: 12px;
-          height: 12px;
+          width: 0.24rem;
+          height: 0.24rem;
           border: 1px solid #9a9a9a;
           border-radius: 2px;
         }
@@ -339,8 +367,8 @@ export default {
           z-index: 12;
           left: 10px;
           top: 6px;
-          width: 12px;
-          height: 12px;
+          width: 0.24rem;
+          height: 0.24rem;
           appearance: none;
           -webkit-appearance: none;
           opacity: 0;
@@ -351,20 +379,24 @@ export default {
         input:checked + label::after {
           content: "";
           position: absolute;
-          left: 4px;
+          left: 6px;
           top: -2px;
           /* 这里显示矩形的一半边框再旋转45度来实现对勾样式 */
-          width: 5px;
-          height: 12px;
+          width: 10px;
+          height: 20px;
           border-right: 1px solid #fff;
           border-bottom: 1px solid #fff;
           transform: rotate(45deg);
+        }
+        .exam-option {
+          margin-left: 40px;
+          font-size: 0.2rem;
         }
       }
     }
     .exam-statement {
       padding-left: 4px;
-      font-size: 8px;
+      font-size: 0.2rem;
       font-family: Microsoft YaHei;
       font-weight: 400;
       line-height: 2;
@@ -372,33 +404,40 @@ export default {
     .exam-index__choose {
       display: flex;
       align-items: center;
+      justify-content: center;
       padding: 10px 0;
       .exam-index__arrow {
         margin: 0 10px;
-        width: 10px;
-        height: 40px;
-        font-size: 6px;
-        line-height: 40px;
+        height: 100%;
+        width: 20px;
+        font-size: 20px;
+        line-height: 6;
+        text-align: center;
         background: #cccccc;
         border: 1px solid #a7a7a7;
         border-radius: 2px;
         cursor: pointer;
       }
-
       .exam-index__content {
         flex: 1;
         display: flex;
         flex-wrap: wrap;
         justify-content: initial;
         color: #fff;
+        .exam-index__box {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          padding-left: 18px;
+        }
         span {
           display: inline-block;
           margin: 4px;
-          width: 20px;
-          font-size: 6px;
-          line-height: 1;
+          width: 70px;
+          font-size: 16px;
+          line-height: 2;
           text-align: center;
-          background: #dddddd;
+          cursor: pointer;
         }
       }
     }
@@ -407,7 +446,7 @@ export default {
 .exam-list {
   border: 1px solid #c7c7c7;
   padding-bottom: 56px;
-  min-height: 240px;
+  min-height: 470px;
 }
 
 #practicExam .confirm-btn_box {
@@ -428,13 +467,17 @@ export default {
   transform: translateX(-50%);
 }
 .no-answer {
-  background: #ff8a94 !important;
+  background: #ff8a94;
   color: #0a01d6;
 }
 
 .has-question {
   background: #fffa96 !important;
   color: #0a01d6;
+}
+.has-do {
+  background: #dddddd !important;
+  color: #fff;
 }
 </style>
 <style lang="scss">

@@ -230,6 +230,7 @@ export default {
     margin: 16px auto;
     width: 1200px;
     .exam-list_box {
+      position: relative;
       width: 760px;
       min-height: 668px;
       background: #fff;
@@ -302,9 +303,13 @@ export default {
         }
       }
       .button-box {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
         display: flex;
         justify-content: space-around;
-        margin: 80px 120px;
+        width: 300px;
         font-size: 14px;
         button {
           -webkit-appearance: none;
@@ -363,7 +368,7 @@ export default {
         align-items: center;
         align-content: flex-start;
         flex-wrap: wrap;
-        height: 420px;
+        height: 300px;
         overflow: auto;
         span {
           box-sizing: border-box;
@@ -418,7 +423,7 @@ export default {
           width: 360px;
           height: 56px;
           color: #fff;
-          font-size: 24px;
+          font-size: 20px;
           background-color: #00b395;
         }
       }

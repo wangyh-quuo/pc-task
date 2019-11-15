@@ -175,7 +175,7 @@ export default {
           p:nth-child(1) {
             height: 30px;
             line-height: 30px;
-            font-size: 30px;
+            font-size: 24px;
             color: #1e1e1e;
           }
           p:nth-child(2) {
@@ -191,7 +191,7 @@ export default {
         margin-top: 55px;
         text-align: left;
         margin-left: 55px;
-        font-size: 24px;
+        font-size: 20px;
         color: #00b395;
         span {
           color: #ff695e;
@@ -239,7 +239,7 @@ export default {
     border: 1px solid #999;
   }
   .card-error {
-    background: #fa7c73;
+    background: linear-gradient(0, #ff8f70, #ff7c6e);
   }
   .page-content__ifo-report {
     position: absolute;
@@ -266,7 +266,7 @@ export default {
       width: 20px;
       border-radius: 50%;
       margin-right: 20px;
-      background-color: #fa7a73;
+      background: linear-gradient(0, #ff8f70, #ff7c6e);
     }
     .notright-p {
       color: #fa7a73;
@@ -292,17 +292,19 @@ export default {
 
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-evenly;
     margin-left: 80px;
     margin-top: 48px;
     .page-content__to-item {
-      width: 240px;
-      height: 100%;
-      box-shadow: 0 0 20px #e1e3e5;
+      width: 180px;
+      height: 64px;
+      //box-shadow: 0 0 20px #e1e3e5;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-items: center;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
       cursor: pointer;
       img {
         width: 30px;

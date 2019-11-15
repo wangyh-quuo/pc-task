@@ -23,11 +23,16 @@
                 </p>
               </div>
               <div class="exam-headline" v-html="removeStyleFont(item.stem)"></div>
-              <div class="exam-option" v-for="(option,index2) of item.option" :key="index2">
+              <div
+                class="exam-option"
+                v-for="(option,index2) of item.option"
+                :key="index2"
+                @click="chooseAnswer(index1,item.id,index2,item.answer)"
+                :style="cardList[index1]==index2?{'background-color': '#f7f8fa'}:''"
+              >
                 <div
                   class="exam-option__index"
-                  :class="cardList[index1]==index2?'exam-option__index__active':''"
-                  @click="chooseAnswer(index1,item.id,index2,item.answer)"
+                  :class="optionClass(item,index1,index2)"
                 >{{ String.fromCharCode(0x41+index2) }}</div>
                 <div v-html="removeStyleFont(option)" class="exam-option__detail"></div>
               </div>
@@ -143,6 +148,26 @@ export default {
         h: this.formatTime(parseInt((this.payTime / 3600) % 24)),
         m: this.formatTime(parseInt((this.payTime / 60) % 60)),
         s: this.formatTime(parseInt(this.payTime % 60))
+      };
+    },
+    optionClass() {
+      return function(item, index1, index2) {
+        if (this.cardList[index1] != null) {
+          if (index2 == this.cardList[index1]) {
+            if (
+              String.fromCharCode(0x41 + this.cardList[index1]) == item.answer
+            ) {
+              //this.typeColor = "#00b395";
+              return "exam-option__index__ok";
+            } else {
+              return "exam-option__index__error";
+            }
+          } else {
+            if (String.fromCharCode(0x41 + index2) == item.answer) {
+              return "exam-option__index__ok";
+            }
+          }
+        }
       };
     }
   },
@@ -350,8 +375,9 @@ export default {
     margin: 16px auto;
     width: 1200px;
     .exam-list_box {
+      position: relative;
       width: 760px;
-      min-height: 668px;
+      min-height: 400px;
       background: #fff;
       .exam-list_content {
         padding-left: 40px;
@@ -382,7 +408,7 @@ export default {
           }
         }
         .exam-headline {
-          font-size: 22px;
+          font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;
           line-height: 28px;
@@ -391,10 +417,13 @@ export default {
           display: flex;
           align-items: center;
           padding: 20px 0;
+          margin-right: 20px;
           font-size: 18px;
           color: #666;
+          cursor: pointer;
           .exam-option__index {
-            width: 24px;
+            box-sizing: border-box;
+            min-width: 24px;
             height: 24px;
             text-align: center;
             line-height: 24px;
@@ -405,16 +434,38 @@ export default {
           .exam-option__index__active {
             color: #fff;
             background: linear-gradient(0, #ffd073, #ffca4f);
+            border: none;
           }
           .exam-option__detail {
             margin-left: 20px;
+            line-height: 1.5;
           }
+          .exam-option__detail__active {
+            color: #ffd073;
+          }
+          .exam-option__index__ok {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #00c9ab, #00b295);
+          }
+          .exam-option__index__error {
+            color: #fff;
+            border: none;
+            background: linear-gradient(0, #ff8f70, #ff7c6e);
+          }
+        }
+        .exam-option:hover {
+          background: #f2f4f7;
         }
       }
       .button-box {
+        position: absolute;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%);
         display: flex;
         justify-content: space-around;
-        margin: 80px 120px;
+        width: 500px;
         font-size: 14px;
         button {
           -webkit-appearance: none;
@@ -442,7 +493,7 @@ export default {
       flex: 1;
       width: 400px;
       padding: 0 20px;
-      min-height: 668px;
+      min-height: 400px;
       background: #fff;
       .exam-card_time {
         height: 56px;
@@ -473,7 +524,7 @@ export default {
         align-items: center;
         align-content: flex-start;
         flex-wrap: wrap;
-        height: 420px;
+        height: 300px;
         overflow: auto;
         span {
           box-sizing: border-box;
@@ -495,6 +546,7 @@ export default {
       .exam-card_index::-webkit-scrollbar {
         display: none;
       }
+
       .exam-card_tips {
         display: flex;
         justify-content: flex-end;
@@ -528,7 +580,7 @@ export default {
           width: 360px;
           height: 56px;
           color: #fff;
-          font-size: 24px;
+          font-size: 20px;
           background-color: #00b395;
         }
       }

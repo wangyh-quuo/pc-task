@@ -5,6 +5,9 @@
 </template>
 
 <style lang="scss">
+#app {
+  height: 100%;
+}
 body {
   background-color: #f0f2f5;
   button {

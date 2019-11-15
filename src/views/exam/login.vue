@@ -1,76 +1,76 @@
 <template>
-  <div>
-    <ylt-template>
-      <template #content-top>
-        <div class="content-nav"></div>
-      </template>
-      <template #content-center>
-        <div class="bottom-right__practice">
-          <div class="practice-banner">
-            <div class="practice-banner__image">
-              <img src="@/assets/image/practiceTest/logo.png" alt />
-            </div>
-            <div class="practice-banner__title">
-              <p class="title-CN">国家医学考试系统</p>
-              <p class="title-en">National Medical Examination</p>
+  <div class="bottom-right__practice">
+    <div class="practice-banner">
+      <div class="practice-banner__image">
+        <img src="@/assets/image/practiceTest/logo.png" alt />
+      </div>
+      <div class="practice-banner__title">
+        <p class="title-CN">国家医学考试系统</p>
+        <p class="title-en">National Medical Examination</p>
+      </div>
+    </div>
+    <!-- 登录表单 -->
+    <div class="login-form">
+      <div class="form-content">
+        <div class="form-title">
+          <img src="@/assets/image/practiceTest/login_logo.png" alt />
+          <span>考试登录</span>
+        </div>
+        <div class="form">
+          <div class="form-group">
+            <label>准考证号</label>
+            <div class="form-input">
+              <input type="text" v-model="userInfo.uid" />
             </div>
           </div>
-          <!-- 登录表单 -->
-          <div class="login-form">
-            <div class="form-content">
-              <div class="form-title">
-                <img src="@/assets/image/practiceTest/login_logo.png" alt />
-                <span>考试登录</span>
-              </div>
-              <div class="form">
-                <div class="form-group">
-                  <label>准考证号</label>
-                  <div class="form-input">
-                    <input type="text" v-model="admission" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>确认准考证号</label>
-                  <div class="form-input">
-                    <input type="text" v-model="admission" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>有效证件号</label>
-                  <div class="form-input">
-                    <input type="text" v-model="idNumber" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="form-btn">
-                    <el-tooltip class="item" effect="dark" content="点我登录" placement="left-start">
-                      <button @click="enterTest">进入</button>
-                    </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="点我退出" placement="right-end">
-                      <button style="margin-left: 10px;" @click="quit">退出</button>
-                    </el-tooltip>
-                  </div>
-                </div>
-              </div>
+          <div class="form-group">
+            <label>确认准考证号</label>
+            <div class="form-input">
+              <input type="text" v-model="userInfo.uid" />
             </div>
-            <div class="form-bottom">v3.2.2</div>
+          </div>
+          <div class="form-group">
+            <label>有效证件号</label>
+            <div class="form-input">
+              <input type="text" v-model="idNumber" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-btn">
+              <el-tooltip class="item" effect="dark" content="点我登录" placement="left-start">
+                <button @click="enterTest">进入</button>
+              </el-tooltip>
+              <el-tooltip class="item" effect="dark" content="点我退出" placement="right-end">
+                <button style="margin-left: 10px;" @click="quit">退出</button>
+              </el-tooltip>
+            </div>
           </div>
         </div>
-      </template>
-    </ylt-template>
+      </div>
+      <div class="form-bottom">v3.2.2</div>
+    </div>
   </div>
 </template>
 
 <script>
-import yltTemplate from "@/components/common/yltTemplate";
+import { mapState } from "vuex";
 // import yltNavBar from "@/components/common/yltNavBar";
 export default {
   data() {
-    return { admission: "test001", idNumber: "xxxxxxxxxxxxxxxxxxxx" };
+    return {};
+  },
+  computed: {
+    ...mapState(["userInfo"]),
+    idNumber() {
+      return Math.random(15) * 100000000000000000;
+    }
   },
   methods: {
     enterTest() {
-      this.$router.push("practiceTest");
+      this.$router.push({
+        name: "practiceTest",
+        params: { idNumber: this.idNumber }
+      });
     },
     quit() {
       this.$confirm("您要退出考试系统吗?", "提示", {
@@ -87,7 +87,6 @@ export default {
     }
   },
   components: {
-    yltTemplate
     // yltNavBar
   }
 };
@@ -99,17 +98,18 @@ export default {
 }
 .bottom-right__practice {
   position: relative;
-  margin-top: 20px;
-  width: 100%;
-  height: 300px;
+  margin: 0 auto;
+  width: 1200px;
+  height: 800px;
   background: url("~@/assets/image/practiceTest/login_bg@2x.png");
   background-size: cover;
   background-repeat: no-repeat;
   .practice-banner {
     display: flex;
     position: absolute;
-    top: 90px;
-    width: 960px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1200px;
     height: 110px;
     background: #4b6073;
   }
@@ -140,8 +140,8 @@ export default {
 .login-form {
   position: absolute;
   right: 230px;
-  top: 20px;
-  bottom: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 226px;
   height: 260px;
   background: rgba(255, 255, 255, 1);
