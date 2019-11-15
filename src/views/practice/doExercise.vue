@@ -10,8 +10,8 @@
               <div class="exam-title">
                 <h2 style="font-size: 20px;">消化系统</h2>
                 <span
-                  class="collection"
-                  :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
+                  class="collection el-icon-star-on"
+                  :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"
                   @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
@@ -56,7 +56,7 @@
       </div>
       <!-- 答题卡 -->
       <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
+        <p class="exam-card_time">{{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
             <h2>答题卡</h2>
@@ -251,6 +251,9 @@ export default {
       }
       //填充答题卡
       this.$set(this.cardList, index, userSelect);
+      setTimeout(()=>{
+        this.nextExam();
+      },500);
     },
     /* 交卷     */
     submitExam() {
@@ -305,7 +308,6 @@ export default {
         });
       });
     },
-    /* 收藏 */
     addCollection(id, el) {
       this.api
         .addCollection(id)
@@ -314,16 +316,10 @@ export default {
             type: "success",
             message: res.message
           });
-          for (const cl of el.target.classList) {
-            if (cl == "el-icon-star-on") {
-              el.target.classList.remove("el-icon-star-on");
-              el.target.classList.add("el-icon-star-off");
-              break;
-            } else if (cl == "el-icon-star-off") {
-              el.target.classList.remove("el-icon-star-off");
-              el.target.classList.add("el-icon-star-on");
-              break;
-            }
+          if (el.target.style.color == "rgb(255, 221, 70)") {
+            el.target.style.color = "#e1e3e6";
+          } else if (el.target.style.color == "rgb(225, 227, 230)") {
+            el.target.style.color = "#ffdd46";
           }
         })
         .catch(err => {
@@ -423,7 +419,6 @@ export default {
           .collection {
             position: absolute;
             right: 40px;
-            color: #ffdd46;
             font-size: 24px;
             cursor: pointer;
           }
@@ -520,8 +515,9 @@ export default {
       .exam-card_time {
         height: 56px;
         line-height: 56px;
-        font-size: 18px;
+        font-size: 16px;
         color: #666;
+        text-align: center;
       }
       .exam-card_content {
         padding: 0 15px 40px;

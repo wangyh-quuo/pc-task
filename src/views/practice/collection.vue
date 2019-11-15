@@ -11,7 +11,7 @@
                 <h2 style="font-size: 20px;">消化系统</h2>
                 <span
                   class="collection"
-                  :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
+                  :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"
                   @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
@@ -48,7 +48,24 @@
           </button>
         </div>
       </div>
+      <!-- 答题卡 -->
+      <div class="exam-card_box">
+        <div class="exam-card_content">
+          <div class="exam-card_title">
+            <h2>答题卡</h2>
+            <p>共{{ examLength }}题</p>
+          </div>
+          <div class="exam-card_index">
+            <span
+              v-for="(item,index) of collectionList"
+              :key="item.id"
+              @click="currentIndex=index"
+            >{{ index+1 }}</span>
+          </div>
+        </div>
+      </div>
     </section>
+
     <!-- 解析 -->
     <section class="solution-box">
       <div v-for="(item,index) of collectionList" :key="item.id">
@@ -185,7 +202,6 @@ export default {
       }
       this.currentIndex++;
     },
-    /* 收藏 */
     addCollection(id, el) {
       this.api
         .addCollection(id)
@@ -194,16 +210,10 @@ export default {
             type: "success",
             message: res.message
           });
-          for (const cl of el.target.classList) {
-            if (cl == "el-icon-star-on") {
-              el.target.classList.remove("el-icon-star-on");
-              el.target.classList.add("el-icon-star-off");
-              break;
-            } else if (cl == "el-icon-star-off") {
-              el.target.classList.remove("el-icon-star-off");
-              el.target.classList.add("el-icon-star-on");
-              break;
-            }
+          if (el.target.style.color == "rgb(255, 221, 70)") {
+            el.target.style.color = "#e1e3e6";
+          } else if (el.target.style.color == "rgb(225, 227, 230)") {
+            el.target.style.color = "#ffdd46";
           }
         })
         .catch(err => {
@@ -213,7 +223,7 @@ export default {
             message: "出错了!"
           });
         });
-    }
+    },
   },
   components: {
     yltHeader
@@ -340,14 +350,9 @@ export default {
       padding: 0 20px;
       min-height: 668px;
       background: #fff;
-      .exam-card_time {
-        height: 56px;
-        line-height: 56px;
-        font-size: 18px;
-        color: #666;
-      }
       .exam-card_content {
         padding: 0 15px 40px;
+        margin-top: 40px;
         background: #f5f7fa;
       }
       .exam-card_title {
@@ -369,7 +374,7 @@ export default {
         align-items: center;
         align-content: flex-start;
         flex-wrap: wrap;
-        height: 300px;
+        height: 500px;
         overflow: auto;
         span {
           box-sizing: border-box;
@@ -382,6 +387,7 @@ export default {
           text-align: center;
           border-radius: 50%;
           border: 1px solid #00b395;
+          cursor: pointer;
         }
         .card-active {
           background: #00b395;
@@ -456,7 +462,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 2;
+        line-height: 1.5;
       }
     }
   }

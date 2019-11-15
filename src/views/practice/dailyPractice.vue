@@ -52,7 +52,7 @@
       </div>
       <!-- 答题卡 -->
       <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
+        <p class="exam-card_time">{{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
             <h2>答题卡</h2>
@@ -500,8 +500,9 @@ export default {
       .exam-card_time {
         height: 56px;
         line-height: 56px;
-        font-size: 18px;
+        font-size: 16px;
         color: #666;
+        text-align: center;
       }
       .exam-card_content {
         padding: 0 15px 40px;
@@ -615,7 +616,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 2;
+        line-height: 1.5;
       }
     }
   }

@@ -43,18 +43,18 @@ export default {
   background-color: #fff;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
   font-size: 0.16em;
   .nav-bar-item {
-    width: 100px;
+    width: 120px;
     height: 36px;
     font-size: 0.14rem;
     color: #999999;
     line-height: 36px;
     border-radius: 18px;
     background-color: #f0f2f5;
-    margin: 0 20px;
+    margin: 0 10px;
     cursor: pointer;
   }
   .nav-bar-item-select {

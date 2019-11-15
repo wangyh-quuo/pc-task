@@ -11,7 +11,7 @@
                 <h2 style="font-size: 20px;">消化系统</h2>
                 <span
                   class="collection el-icon-star-on"
-                  :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
+                  :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"
                   @click.stop="addCollection(item.id,$event)"
                 ></span>
               </div>
@@ -95,7 +95,7 @@
       </div>
       <!-- 答题卡 -->
       <div class="exam-card_box">
-        <p class="exam-card_time">总用时: {{ payTime.h }}:{{ payTime.m }}:{{ payTime.s }}</p>
+        <p class="exam-card_time">{{ payTime.h }}:{{ payTime.m }}:{{ payTime.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
             <h2>答题卡</h2>
@@ -313,7 +313,7 @@ export default {
       }
     },
     /* 收藏 */
-     addCollection(id, el) {
+    addCollection(id, el) {
       this.api
         .addCollection(id)
         .then(res => {
@@ -321,16 +321,10 @@ export default {
             type: "success",
             message: res.message
           });
-          for (const cl of el.target.classList) {
-            if (cl == "el-icon-star-on") {
-              el.target.classList.remove("el-icon-star-on");
-              el.target.classList.add("el-icon-star-off");
-              break;
-            } else if (cl == "el-icon-star-off") {
-              el.target.classList.remove("el-icon-star-off");
-              el.target.classList.add("el-icon-star-on");
-              break;
-            }
+          if (el.target.style.color == "rgb(255, 221, 70)") {
+            el.target.style.color = "#e1e3e6";
+          } else if (el.target.style.color == "rgb(225, 227, 230)") {
+            el.target.style.color = "#ffdd46";
           }
         })
         .catch(err => {
@@ -484,13 +478,14 @@ export default {
       flex: 1;
       width: 400px;
       padding: 0 20px;
-     min-height: 400px;
+      min-height: 400px;
       background: #fff;
       .exam-card_time {
         height: 56px;
         line-height: 56px;
-        font-size: 18px;
+        font-size: 16px;
         color: #666;
+        text-align: center;
       }
       .exam-card_content {
         padding: 0 15px 40px;
@@ -527,7 +522,7 @@ export default {
           color: #00b395;
           text-align: center;
           border-radius: 50%;
-           cursor: pointer;
+          cursor: pointer;
         }
         .card-active {
           background: linear-gradient(0, #00c9a8, #00b295);
@@ -628,7 +623,7 @@ export default {
         width: 800px;
         font-size: 20px;
         color: #333;
-        line-height: 2;
+        line-height: 1.5;
       }
     }
   }

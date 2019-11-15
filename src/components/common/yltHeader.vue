@@ -67,8 +67,13 @@ export default {
     toYlt() {
       if(this.$route.name=='home'){
         location.href = "https://www.zgylt.com";
-      }else {
-        this.$router.push({name: 'home'})
+      }
+      else if (this.$route.name=='report'){
+        this.$router.push({name: 'home'});
+      }
+      else {
+        //this.$router.push({name: 'home'})
+        this.$router.back(-1);
       }
     },
     //选择类别
@@ -110,6 +115,7 @@ export default {
   height: 100%;
   .logo {
     cursor: pointer;
+    height: 100%;
   }
 }
 

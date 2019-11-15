@@ -27,7 +27,7 @@
       <template #content-center>
         <div class="menu-list" v-loading="loading">
           <div
-            class="menu-list__contentt"
+            class="menu-list__content"
             @click="popDialog(classify)"
             v-for="classify of modeClassifyList"
             :key="classify.id"
@@ -201,11 +201,11 @@ export default {
   align-items: center;
   align-content: space-evenly;
   width: 760px;
-  height: 520px;
+  height: 465px;
   margin-top: 20px;
   background-color: #fff;
   text-align: center;
-  .menu-list__contentt {
+  .menu-list__content {
     padding: 27px 0 28px;
     margin: 0 20px;
     width: 150px;
@@ -215,6 +215,7 @@ export default {
     img {
       width: 56px;
       height: 56px;
+      transform: translateX(-6px);
     }
     p {
       font-size: 18px;
@@ -263,14 +264,14 @@ export default {
   }
   .bottom-right-content {
     width: 200px;
-    height: 520px;
+    height: 465px;
     margin-top: 20px;
     background-color: #fff;
     text-align: center;
     img {
       width: 138px;
       height: 150px;
-      margin-top: 72px;
+      margin-top: 40px;
     }
     .brc-p1 {
       font-size: 22px;
@@ -291,7 +292,7 @@ export default {
       height: 40px;
       border-radius: 20px;
       background-color: #00b395;
-      margin-top: 40px;
+      margin-top: 30px;
       border: none;
       font-size: 18px;
       color: #ffffff;

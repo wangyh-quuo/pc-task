@@ -433,7 +433,7 @@ export default {
   cursor: pointer;
 }
 .page-box-item:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: #f7f8fa;
 }
 .page-box-item-left {
   height: 60px;
@@ -457,7 +457,7 @@ export default {
 .page-box-item-right-b {
   width: 88px;
   height: 28px;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 28px;
   color: #00b395;
   text-align: center;
@@ -469,7 +469,7 @@ export default {
   height: 100%;
   color: #999999;
   font-size: 14px;
-  line-height: 80px;
+  line-height: 60px;
   display: flex;
   flex-direction: row;
   text-align: center;
@@ -482,10 +482,10 @@ export default {
 .page-box-item-right-c > div {
   width: 64px;
   height: 28px;
-  margin-top: 26px;
   margin-left: 40px;
-  line-height: 28px;
-  font-size: 15px;
+  margin-top: 16px;
+  line-height: 2;
+  font-size: 14px;
   color: #00b395;
   border-radius: 15px;
   background-color: rgba(0, 179, 149, 0.23);
@@ -495,5 +495,8 @@ export default {
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
+  /deep/ .active {
+    background: #51c9b5!important;
+  }
 }
 </style>
