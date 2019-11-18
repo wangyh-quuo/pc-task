@@ -6,7 +6,7 @@
         <div class="report-progress">
           <el-progress
             type="circle"
-            :percentage="scoreReport.percent"
+            :percentage="reportData.percent"
             :stroke-width="12"
             :width="160"
             color= "#00b395"
@@ -16,11 +16,11 @@
         <div class="page-content__report-ifo">
           <div class="page-content__report-ifo-top">
             <div class="page-content__report-ifo-top-item">
-              <p>{{ scoreReport.reCount }}</p>
+              <p>{{ reportData.reCount }}</p>
               <p>答题总数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
-              <p>{{ scoreReport.rightCount }}</p>
+              <p>{{ reportData.rightCount }}</p>
               <p>正确数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
@@ -30,7 +30,7 @@
           </div>
           <p class="page-content__report-ifo-bottom content-bottom-report-ifo-top-item">
             您已
-            <span>超越{{ scoreReport.percentage }}</span>的用户！继续加油哦！
+            <span>超越{{ reportData.percentage }}</span>的用户！继续加油哦！
           </p>
         </div>
       </div>
@@ -67,9 +67,9 @@
           <img src="@/assets/image/report_check_wrong.png" alt />
           <p>只看错题</p>
         </div>
-        <div class="page-content__to-item" @click="showAnswer">
+        <div class="page-content__to-item" @click="toDoExercisePage">
           <img src="@/assets/image/report_back_list.png" alt />
-          <p>做题列表</p>
+          <p>返回首页</p>
         </div>
       </div>
     </div>
@@ -82,15 +82,16 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
-      answerCardList: []
+      answerCardList: [],
+      reportData: {},
     };
   },
   computed: {
     ...mapState(["scoreReport"]),
     payTime() {
       return {
-        m: parseInt(this.scoreReport.useTime / 60),
-        s: parseInt(this.scoreReport.useTime % 60)
+        m: parseInt(this.reportData.useTime / 60),
+        s: parseInt(this.reportData.useTime % 60)
       };
     },
     isDo() {
@@ -108,6 +109,7 @@ export default {
   },
   methods: {
     initPage() {
+      this.getReportData();
       this.getAnswerCard(this.$route.params.id, 0);
     },
     //查看解析
@@ -127,6 +129,19 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    toDoExercisePage() {
+      this.$router.push({
+        name: "home"
+      });
+    },
+    getReportData() {
+      this.scoreReport.some(item=>{
+        if(item.id==this.$route.params.id){
+          this.reportData = item;
+          return true;
+        }
+      })
     }
   },
   components: {

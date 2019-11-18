@@ -47,7 +47,7 @@
         </div>
         <div class="confirm-btn_box" v-show="mode==1">
           <button class="confirm-btn" @click="signQuestion">标疑</button>
-          <button class="confirm-btn" @click="toNoAnswer">转到未答题</button>
+          <button class="confirm-btn" @click="toNoAnswerPage">转到未答题</button>
           <button class="confirm-btn" @click="mode=0">返回</button>
           <button class="confirm-btn" @click="prevSignQuestion">上一题</button>
           <button class="confirm-btn" @click="nextSignQuestion">下一题</button>
@@ -102,10 +102,10 @@
             >
               <div>
                 <span
-                  v-for="(item,index2) of pages"
+                  v-for="item of pages"
                   :key="item.id"
                   class="has-question"
-                  @click="currentIndex = index2+index1*60"
+                  @click="currentIndex = item"
                 >{{ item+1 }}</span>
               </div>
             </div>
@@ -123,10 +123,10 @@
             >
               <div>
                 <span
-                  v-for="(item,index2) of pages"
+                  v-for="item of pages"
                   :key="item.id"
                   class="no-answer"
-                  @click="currentIndex = index2+index1*60"
+                  @click="currentIndex = item"
                 >{{ item+1 }}</span>
               </div>
             </div>
@@ -156,9 +156,9 @@ export default {
       pageSize: 60,
       pageCount: 0,
       currentPage: 0,
-      mode: 0 ,// 0做题 1 答疑 2未做
-      notDoListPage: [],// 未做分页
-      signQuestionListPage: [],// 未做分页
+      mode: 0, // 0做题 1 答疑 2未做
+      notDoListPage: [], // 未做分页
+      signQuestionListPage: [] // 未做分页
     };
   },
   mounted() {
@@ -212,8 +212,8 @@ export default {
     //转到标疑题
     toSignQuestionPage() {
       if (this.signQuestionList.length == 0) {
-        this.$alert('没有标疑题', '提示', {
-          confirmButtonText: '确定',
+        this.$alert("没有标疑题", "提示", {
+          confirmButtonText: "确定"
         });
         return;
       }
@@ -229,52 +229,38 @@ export default {
     //转到未答题
     toNoAnswer() {
       if (this.notDoList.length == 0) {
-        this.$alert('没有未答题', '提示', {
-          confirmButtonText: '确定',
+        this.$alert("没有未答题", "提示", {
+          confirmButtonText: "确定"
         });
         return;
       }
-      let index = this.notDoList.indexOf(this.notDcurrentNotDoIndex);
+      let index = this.notDoList.indexOf(this.currentNotDoIndex);
       if (index != -1 && index < this.notDoList.length) {
-        this.currentIndex = this.notDcurrentNotDoIndex;
-        this.notDcurrentNotDoIndex = this.notDoList[
+        this.currentIndex = this.currentNotDoIndex;
+        this.currentNotDoIndex = this.notDoList[
           ++index % this.notDoList.length
         ];
       } else {
         //初始为0
-        this.notDcurrentNotDoIndex = this.notDoList[0];
-        this.currentIndex = this.notDcurrentNotDoIndex;
+        this.currentNotDoIndex = this.notDoList[0];
+        this.currentIndex = this.currentNotDoIndex;
       }
       this.getCurrentPages(this.currentIndex);
     },
     prevNotdo() {
-      let index = this.notDoList.indexOf(this.notDcurrentNotDoIndex);
-      if (index != -1 && index < this.notDoList.length) {
-        this.currentIndex = this.notDcurrentNotDoIndex;
-        if (index <= 0) {
-          return;
-        }
-        this.notDcurrentNotDoIndex--;
-      } else {
-        //初始为0
-        this.notDcurrentNotDoIndex = this.notDoList[0];
-        this.currentIndex = this.notDcurrentNotDoIndex;
+      if (this.currentNotDoIndex <= 0) {
+        return;
       }
+      this.currentNotDoIndex--;
+      this.currentIndex = this.notDoList[this.currentNotDoIndex];
       this.getCurrentPages(this.currentIndex);
     },
     nextNotdo() {
-      let index = this.notDoList.indexOf(this.notDcurrentNotDoIndex);
-      if (index != -1 && index < this.notDoList.length) {
-        this.currentIndex = this.notDcurrentNotDoIndex;
-        if (index >= this.notDoList.length - 1) {
-          return;
-        }
-        this.notDcurrentNotDoIndex++;
-      } else {
-        //初始为0
-        this.notDcurrentNotDoIndex = this.notDoList[0];
-        this.currentIndex = this.notDcurrentNotDoIndex;
+      if (this.currentNotDoIndex >= this.notDoLength.length) {
+        return;
       }
+      this.currentNotDoIndex++;
+      this.currentIndex = this.notDoList[this.currentNotDoIndex];
       this.getCurrentPages(this.currentIndex);
     },
     /**
@@ -299,32 +285,18 @@ export default {
       this.getCurrentPages(this.currentIndex);
     },
     prevSignQuestion() {
-      let index = this.signQuestionList.indexOf(this.currentSignQuestionIndex);
-      if (index != -1 && index < this.signQuestionList.length) {
-        this.currentIndex = this.currentSignQuestionIndex;
-        if (this.currentSignQuestionIndex <= 0) {
-          return;
-        }
-        this.currentSignQuestionIndex--;
-      } else {
-        //初始为0
-        this.currentSignQuestionIndex = this.signQuestionList[0];
-        this.currentIndex = this.currentSignQuestionIndex;
+      if (this.currentSignQuestionIndex <= 0) {
+        return;
       }
+      this.currentSignQuestionIndex--;
+      this.currentIndex = this.signQuestionList[this.currentSignQuestionIndex];
     },
     nextSignQuestion() {
-      let index = this.signQuestionList.indexOf(this.currentSignQuestionIndex);
-      if (index != -1 && index < this.signQuestionList.length) {
-        this.currentIndex = this.currentSignQuestionIndex;
-        if (this.currentSignQuestionIndex >= this.signQuestionList.length - 1) {
-          return;
-        }
-        this.currentSignQuestionIndex++;
-      } else {
-        //初始为0
-        this.currentSignQuestionIndex = this.signQuestionList[0];
-        this.currentIndex = this.currentSignQuestionIndex;
+      if (this.currentSignQuestionIndex >= this.signQuestionList.length - 1) {
+        return;
       }
+      this.currentSignQuestionIndex++;
+      this.currentIndex = this.signQuestionList[this.currentSignQuestionIndex];
     },
     //上一题
     prevQuestion() {
@@ -355,7 +327,9 @@ export default {
     //选择选项
     chooseOption(index) {
       this.$set(this.cardList, this.currentIndex, index);
-      this.notDoList.splice(this.notDoList.indexOf(index),1);
+      if(this.notDoList.indexOf(this.currentIndex)!=-1){
+        this.notDoList.splice(this.notDoList.indexOf(this.currentIndex), 1);
+      }
       this.notDoLength = this.notDoList.length;
       //
       this.setNotDoListPage(this.pageSize);
@@ -413,7 +387,7 @@ export default {
     },
     setNotDoListPage(pageSize) {
       let page = 0;
-      const pageCount = Math.ceil(this.notDoLength/pageSize);
+      const pageCount = Math.ceil(this.notDoLength / pageSize);
       for (page; page < pageCount; page++) {
         if (!this.notDoListPage[page]) {
           this.notDoListPage[page] = [];
@@ -428,7 +402,7 @@ export default {
     },
     setSignQuestionListPage(pageSize) {
       let page = 0;
-      const pageCount = Math.ceil(this.signQuestionLength/pageSize);
+      const pageCount = Math.ceil(this.signQuestionLength / pageSize);
       for (page; page < pageCount; page++) {
         if (!this.signQuestionListPage[page]) {
           this.signQuestionListPage[page] = [];
@@ -438,7 +412,10 @@ export default {
           (page + 1) * pageSize < this.signQuestionLength
             ? (page + 1) * pageSize
             : this.signQuestionLength;
-        this.signQuestionListPage[page] = this.signQuestionList.slice(start, end);
+        this.signQuestionListPage[page] = this.signQuestionList.slice(
+          start,
+          end
+        );
       }
     }
   },

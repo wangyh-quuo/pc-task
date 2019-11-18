@@ -202,9 +202,9 @@ export default {
     },
     payTime() {
       return {
-        h: this.formatTime(parseInt(this.scoreReport.useTime / 3600)),
-        m: this.formatTime(parseInt((this.scoreReport.useTime / 60) % 60)),
-        s: this.formatTime(parseInt(this.scoreReport.useTime % 60))
+        h: this.formatTime(parseInt(this.reportData.useTime / 3600)),
+        m: this.formatTime(parseInt((this.reportData.useTime / 60) % 60)),
+        s: this.formatTime(parseInt(this.reportData.useTime % 60))
       };
     },
     optionClass() {
@@ -252,6 +252,7 @@ export default {
   },
   methods: {
     initPage() {
+      this.getReportData();
       //获得做题列表
       this.getAnswerCard(this.$route.params.id, 0);
       this.type = this.$route.params.type;
@@ -354,6 +355,14 @@ export default {
       return this.answerCardList.filter(item => {
         return item.userSelect != item.answer;
       });
+    },
+    getReportData() {
+      this.scoreReport.some(item=>{
+        if(item.id==this.$route.params.id){
+          this.reportData = item;
+          return true;
+        }
+      })
     }
   },
   components: {
@@ -405,6 +414,7 @@ export default {
         }
         .exam-headline {
           margin-bottom: 16px;
+          margin-right: 20px;
           font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;

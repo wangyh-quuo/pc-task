@@ -68,7 +68,7 @@ export default {
       if(this.$route.name=='home'){
         location.href = "https://www.zgylt.com";
       }
-      else if (this.$route.name=='report'){
+      else if (this.$route.name=='report'||this.$route.name=='doExercise'){
         this.$router.push({name: 'home'});
       }
       else {

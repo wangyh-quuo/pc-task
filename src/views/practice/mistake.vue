@@ -273,6 +273,7 @@ export default {
         }
         .exam-headline {
           margin-bottom: 16px;
+          margin-right: 20px;
           font-size: 22px;
           color: #1e1e1e;
           font-weight: bold;

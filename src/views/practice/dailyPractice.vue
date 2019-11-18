@@ -414,6 +414,7 @@ export default {
           font-weight: bold;
           line-height: 28px;
           margin-bottom: 16px;
+          margin-right: 20px;
         }
         .exam-option {
           display: flex;

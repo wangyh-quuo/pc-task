@@ -35,7 +35,9 @@ axios.interceptors.response.use(
           break;
         case 403:
           //TODO: 去登陆
-          alert(error.response.message);
+          window.location.href = `https://passport.zgylt.com/?ReturnUrl=${escape(
+            location.href
+          )}`;
           break;
         // 404请求不存在
         case 404:

@@ -321,9 +321,11 @@ export default {
     },
     //查看我的成绩
     toReportPage(item) {
+      console.log(item);
       this.$router.push({
         name: "report",
-        params: { testId: item.mid, id: item.id }
+        params: { testId: parseInt(item.tid), id: item.id },
+        query: { classifyId: item.mid }
       });
     },
     toDoExamPage(item) {
@@ -331,7 +333,7 @@ export default {
       this.$router.push({
         name: "doExercise",
         params: { classifyId: item.mid, id: item.tid },
-        query: {id: item.id}
+        query: { id: item.id }
       });
     }
   },
@@ -496,7 +498,7 @@ export default {
   left: 50%;
   transform: translateX(-50%);
   /deep/ .active {
-    background: #51c9b5!important;
+    background: #51c9b5 !important;
   }
 }
 </style>

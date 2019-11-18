@@ -112,7 +112,8 @@ export default {
       payTime: 0, //费时
       timer: null,
       records: [], // 本地做题记录
-      isSaveLocalStorage: false //是否数据存储在本地
+      isSaveLocalStorage: false, //是否数据存储在本地
+      isQuit: true //是否离开页面
     };
   },
   mounted() {
@@ -251,9 +252,9 @@ export default {
       }
       //填充答题卡
       this.$set(this.cardList, index, userSelect);
-      setTimeout(()=>{
+      setTimeout(() => {
         this.nextExam();
-      },500);
+      }, 500);
     },
     /* 交卷     */
     submitExam() {
@@ -302,9 +303,16 @@ export default {
           type: "success",
           message: "交卷成功!"
         });
+        this.isQuit = false;
         this.$router.push({
           name: "report",
-          params: { testId: this.$route.params.id, id: res.id }
+          params: {
+            testId: this.$route.params.id,
+            id: res.id
+          },
+          query: {
+            classifyId: this.$route.params.classifyId
+          }
         });
       });
     },
@@ -338,51 +346,55 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    if (this.cardList.length != this.examLength) {
-      this.$confirm(
-        "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }
-      )
-        .then(() => {
-          //离开前保存数据
-          if (!this.isSaveLocalStorage) {
-            this.records.push({
-              id: `${from.params.classifyId}/${from.params.id}`,
-              payTime: this.payTime,
-              currentIndex: this.currentIndex,
-              cardList: this.cardList,
-              answerList: this.answerList
-            });
-          } else {
-            for (let i = 0; i < this.records.length; i++) {
-              if (
-                this.records[i].id ==
-                `${from.params.classifyId}/${from.params.id}`
-              ) {
-                this.records[i] = {
-                  id: `${from.params.classifyId}/${from.params.id}`,
-                  payTime: this.payTime,
-                  currentIndex: this.currentIndex,
-                  cardList: this.cardList,
-                  answerList: this.answerList
-                };
-                break;
+    if(this.isQuit){
+      if (this.cardList.length != this.examLength) {
+        this.$confirm(
+          "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          }
+        )
+          .then(() => {
+            //离开前保存数据
+            if (!this.isSaveLocalStorage) {
+              this.records.push({
+                id: `${from.params.classifyId}/${from.params.id}`,
+                payTime: this.payTime,
+                currentIndex: this.currentIndex,
+                cardList: this.cardList,
+                answerList: this.answerList
+              });
+            } else {
+              for (let i = 0; i < this.records.length; i++) {
+                if (
+                  this.records[i].id ==
+                  `${from.params.classifyId}/${from.params.id}`
+                ) {
+                  this.records[i] = {
+                    id: `${from.params.classifyId}/${from.params.id}`,
+                    payTime: this.payTime,
+                    currentIndex: this.currentIndex,
+                    cardList: this.cardList,
+                    answerList: this.answerList
+                  };
+                  break;
+                }
               }
             }
-          }
-          localStorage.setItem("doExamRecord", JSON.stringify(this.records));
-          next();
-        })
-        .catch(err => {
-          console.log(err);
-          next(false);
-        });
-    } else {
+            localStorage.setItem("doExamRecord", JSON.stringify(this.records));
+            next();
+          })
+          .catch(err => {
+            console.log(err);
+            next(false);
+          });
+      } else {
+        next();
+      }
+    }else {
       next();
     }
   },
@@ -435,6 +447,7 @@ export default {
         }
         .exam-headline {
           margin-bottom: 16px;
+          margin-right: 20px;
           font-size: 20px;
           color: #1e1e1e;
           font-weight: bold;
