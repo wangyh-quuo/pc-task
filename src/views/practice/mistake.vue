@@ -8,7 +8,7 @@
           <transition>
             <div v-show="currentIndex==index1">
               <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
+                <h2 style="font-size: 20px;">{{ $route.query.text }}</h2>
                 <span
                   class="collection"
                   :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"

@@ -142,7 +142,7 @@ export default {
           //弹出选择框
           this.visible = true;
         } else {
-          this.$alert("请求的数据为空", "提示", {
+          this.$alert("该题库暂时还没有题哦，敬请期待！", "提示", {
             confirmButtonText: "选择其他类别吧"
           });
         }

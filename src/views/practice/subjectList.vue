@@ -15,7 +15,7 @@
                 class="page-box-item"
                 v-for="item of collectionList.results"
                 :key="item.id"
-                @click="toCollectionPage(item.id)"
+                @click="toCollectionPage(item)"
               >
                 <div class="page-box-item-left" v-text="item.title"></div>
                 <div class="page-box-item-right-a">
@@ -43,7 +43,7 @@
                 class="page-box-item"
                 v-for="item of mistakeList.results"
                 :key="item.id"
-                @click="toMistakePage(item.id)"
+                @click="toMistakePage(item)"
               >
                 <div class="page-box-item-left" v-text="item.title"></div>
                 <div class="page-box-item-right-a">
@@ -228,10 +228,11 @@ export default {
       );
     },
     //收藏页面
-    toCollectionPage(id) {
+    toCollectionPage(item) {
       this.$router.push({
         name: "collection",
-        params: { id: id }
+        params: { id: item.id },
+        query: { text: item.title }
       });
     },
     //错题列表
@@ -264,10 +265,11 @@ export default {
     /**
      * 错题页面
      */
-    toMistakePage(id) {
+    toMistakePage(item) {
       this.$router.push({
         name: "mistake",
-        params: { id: id }
+        params: { id: item.id },
+        query: { text: item.title }
       });
     },
     /**
@@ -325,7 +327,7 @@ export default {
       this.$router.push({
         name: "report",
         params: { testId: parseInt(item.tid), id: item.id },
-        query: { classifyId: item.mid }
+        query: { classifyId: item.mid, text: item.title }
       });
     },
     toDoExamPage(item) {
@@ -333,7 +335,7 @@ export default {
       this.$router.push({
         name: "doExercise",
         params: { classifyId: item.mid, id: item.tid },
-        query: { id: item.id }
+        query: { id: item.id, text: item.title }
       });
     }
   },

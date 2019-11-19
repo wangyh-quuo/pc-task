@@ -3,12 +3,12 @@
     <ylt-header></ylt-header>
     <!-- 题目 -->
     <section class="exam-box">
-      <div class="exam-list_box">
+      <div class="exam-list_box" v-loading="loading">
         <div class="exam-list_content" v-for="(item,index1) of examList" :key="item.id">
           <transition>
             <div v-show="currentIndex==index1">
               <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
+                <h2 style="font-size: 20px;">每日一练</h2>
                 <span
                   class="collection"
                   :class="item.isCollection?'el-icon-star-on':'el-icon-star-off'"
@@ -137,7 +137,8 @@ export default {
     ...mapState({
       userInfo: "userInfo",
       typeList: "typeList",
-      currentTypeIndex: "currentIndex"
+      currentTypeIndex: "currentIndex",
+      loading: "loading"
     }),
     //第一题禁止按钮
     firstExam() {
@@ -173,13 +174,14 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setScoreReport"]),
+    ...mapMutations(["setScoreReport", "isLoading", "loadingSuccess"]),
     initPage() {
       //获得做题列表
       this.getDailyExercise(this.typeList[this.currentTypeIndex].id);
     },
     //请求数据
     getDailyExercise(id) {
+      this.isLoading();
       this.api
         .getDailyExercise(id)
         .then(res => {
@@ -208,6 +210,7 @@ export default {
               analysis: this.examList[i].analysis
             };
           }
+          this.loadingSuccess();
         })
         .catch(err => {
           console.log(err);

@@ -21,7 +21,7 @@
             <div
               v-for="(item,index2) of list.ChildNodes"
               :key="item.id"
-              @click.stop="fold(index1,index2,item.id)"
+              @click.stop="fold(index1,index2,item.id,item.text)"
             >
               <div class="dialog-box-item__small">
                 <img
@@ -40,7 +40,7 @@
                     class="dialog-box-item-a"
                     v-for="exam of examList"
                     :key="exam.id"
-                    @click.stop="toDoExercisePage(exam.id)"
+                    @click.stop="toDoExercisePage(exam.id,exam.text)"
                   >
                     <p class="dialog-box-item-a-name" v-text="exam.text"></p>
                     <p class="dialog-box-item-a-const">
@@ -112,7 +112,7 @@ export default {
     foldFirstLevel(index) {
       this.$set(this.firstLevel, index, !this.firstLevel[index]);
     },
-    fold(index1, index2, id) {
+    fold(index1, index2, id,text) {
       this.$set(
         this.secondLevel[index1],
         index2,
@@ -121,7 +121,7 @@ export default {
       this.flag++; //强制刷新视图
       //TODO: id为test 开头则直接进入试卷，否则显示第三级列表
       if (this.secondLevel[index1][index2]) {
-        this.showExamList(id);
+        this.showExamList(id,text);
       }
     },
     //第三级列表数据
@@ -136,10 +136,11 @@ export default {
       });
     },
     //跳转做题页面
-    toDoExercisePage(id) {
+    toDoExercisePage(id,text) {
       this.$router.push({
         name: "doExercise",
-        params: { classifyId: this.classifyId, id: id }
+        params: { classifyId: this.classifyId, id: id },
+        query: {text: text}
       });
     }
   },
@@ -241,7 +242,7 @@ export default {
           flex-direction: row;
           display: flex;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: space-around;
           .dialog-box-item-a-name {
             font-size: 14px;
             color: #1e1e1e;
@@ -255,7 +256,7 @@ export default {
             font-size: 12px;
             color: #999999;
             margin-left: 40px;
-            min-width: 60px;
+            min-width: 100px;
           }
 
           .dialog-box-item-a-correct {
@@ -265,7 +266,7 @@ export default {
             margin-left: 20px;
           }
           .dialog-box-item-a-write {
-            margin-left: 20px;
+            margin-right: 20px;
           }
         }
       }

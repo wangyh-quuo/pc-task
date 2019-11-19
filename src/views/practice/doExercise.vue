@@ -3,12 +3,12 @@
     <ylt-header></ylt-header>
     <!-- 题目 -->
     <section class="exam-box">
-      <div class="exam-list_box">
+      <div class="exam-list_box" v-loading="loading">
         <div class="exam-list_content" v-for="(item,index1) of examList" :key="item.id">
           <transition>
             <div v-show="currentIndex==index1">
               <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
+                <h2 style="font-size: 20px;">{{ $route.query.text }}</h2>
                 <span
                   class="collection el-icon-star-on"
                   :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"
@@ -43,19 +43,23 @@
             </div>
           </transition>
         </div>
-        <div class="button-box">
+        <div class="button-box" v-if="examLength>0">
           <button :class="firstExam" @click="lastExam">
             <i class="el-icon-arrow-left"></i>
             上一题
           </button>
-          <button class="button-active" @click="nextExam">
+          <button :class="finalExam" @click="nextExam">
             下一题
             <i class="el-icon-arrow-right"></i>
           </button>
         </div>
+        <div class="no-exam" v-if="examLength==0">
+          <p>暂无试题-404</p>
+          <el-button type="success" @click="$router.push({name: 'home'})">回首页</el-button>
+        </div>
       </div>
       <!-- 答题卡 -->
-      <div class="exam-card_box">
+      <div class="exam-card_box" v-loading="loading">
         <p class="exam-card_time">{{ distance.h }}:{{ distance.m }}:{{ distance.s }}</p>
         <div class="exam-card_content">
           <div class="exam-card_title">
@@ -82,30 +86,24 @@
             </div>
           </div>
         </div>
-        <div v-show="false">
-          <el-button>所有解析</el-button>
-          <el-button>只看错题</el-button>
-        </div>
         <div class="submit-test">
-          <el-button @click="submitExam">交卷</el-button>
+          <el-button v-if="examLength>0" @click="submitExam">交卷</el-button>
+          <el-button v-if="examLength==0" @click="$router.push({name: 'home'})">回首页</el-button>
         </div>
       </div>
     </section>
-    <!-- 解析 -->
-    <section></section>
   </div>
 </template>
 
 <script>
 import yltHeader from "@/components/common/yltHeader";
 import { mapState, mapMutations } from "vuex";
-import { nextTick } from "q";
 export default {
   data() {
     return {
       examList: [], //试题列表
       currentIndex: 0, //当前试题索引
-      examLength: 0, //试题总数量
+      examLength: 1, //试题总数量
       answerList: [], //用户选择答案列表
       cardList: [], //答题卡内容
       lastAnswerCardList: [], //上次做题记录
@@ -117,20 +115,24 @@ export default {
     };
   },
   mounted() {
-    nextTick(() => {
-      this.initPage();
-    });
+    this.initPage();
   },
   computed: {
     //...mapState(["userInfo", "typeList", "currentIndex"]),
     ...mapState({
       userInfo: "userInfo",
       typeList: "typeList",
-      currentTypeIndex: "currentIndex"
+      currentTypeIndex: "currentIndex",
+      loading: "loading"
     }),
     //第一题禁止按钮
     firstExam() {
       return this.currentIndex == 0 ? "button-disabled" : "button-active";
+    },
+    finalExam() {
+      return this.currentIndex == this.examLength - 1
+        ? "button-disabled"
+        : "button-active";
     },
     //计时器
     distance() {
@@ -142,9 +144,10 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setScoreReport"]),
+    ...mapMutations(["setScoreReport", "isLoading", "loadingSuccess"]),
     initPage() {
       //获得做题列表
+      this.isLoading();
       this.getTestDetails(this.$route.params.id);
     },
     restoreData() {
@@ -168,43 +171,55 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      //获得上次做题记录
-      if (this.lastAnswerCardList.length == this.examLength) {
-        this.examList = this.lastAnswerCardList;
-        for (let i = 0; i < this.examLength; i++) {
-          if (this.examList[i].userSelect != "N") {
-            this.$set(this.cardList, i, i);
-            this.answerList[i].userSelect = this.examList[i].userSelect;
+      try {
+        //获得上次做题记录
+        if (this.lastAnswerCardList.length == this.examLength) {
+          this.examList = this.lastAnswerCardList;
+          for (let i = 0; i < this.examLength; i++) {
+            if (this.examList[i].userSelect != "N") {
+              this.$set(this.cardList, i, i);
+              this.answerList[i].userSelect = this.examList[i].userSelect;
+            }
           }
         }
+      } catch (err) {
+        console.log(err);
       }
     },
     //请求数据
     async getTestDetails(id) {
-      this.examList = await this.api.getTestDetails(id);
-      this.examLength = this.examList.length;
-      //开启定时器
-      this.timer = setInterval(() => {
-        this.payTime++;
-      }, 1000);
-      //初始化答题卡
-      for (let i = 0; i < this.examList.length; i++) {
-        this.answerList[i] = {
-          index: i,
-          id: this.examList[i].id,
-          userSelect: "N",
-          rightOption: this.examList[i].answer
-        };
+      try {
+        this.examList = await this.api.getTestDetails(id);
+        this.loadingSuccess();
+        this.examLength = this.examList.length;
+        //开启定时器
+        this.timer = setInterval(() => {
+          this.payTime++;
+        }, 1000);
+        //初始化答题卡
+        for (let i = 0; i < this.examList.length; i++) {
+          this.answerList[i] = {
+            index: i,
+            id: this.examList[i].id,
+            userSelect: "N",
+            rightOption: this.examList[i].answer
+          };
+        }
+        //恢复数据
+        this.lastAnswerCardList = await this.getLastRecords(
+          this.$route.query.id,
+          0
+        );
+        this.restoreData();
+      } catch (err) {
+        console.log(err);
+        this.examLength = 0;
       }
-      //恢复数据
-      this.lastAnswerCardList = await this.getLastRecords(
-        this.$route.query.id,
-        0
-      );
-      this.restoreData();
     },
     removeStyleFont(content) {
-      return content.replace(/style="\S+"/g, "");
+      if (content) {
+        return content.replace(/style="\S+"/g, "");
+      }
     },
     //格式化时间 00
     formatTime(date) {
@@ -298,6 +313,7 @@ export default {
     },
     requestSubmitExam(id, rquestModel) {
       this.api.submitTest(id, rquestModel).then(res => {
+        console.log(res);
         this.setScoreReport(res);
         this.$message({
           type: "success",
@@ -346,7 +362,7 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    if(this.isQuit){
+    if (this.isQuit) {
       if (this.cardList.length != this.examLength) {
         this.$confirm(
           "您的答题记录尚未提交，未提交下次则重新开始, 是否继续?",
@@ -394,7 +410,7 @@ export default {
       } else {
         next();
       }
-    }else {
+    } else {
       next();
     }
   },
@@ -615,6 +631,17 @@ export default {
           background-color: #00b395;
         }
       }
+    }
+  }
+  .no-exam {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 20px;
+    p {
+      padding-bottom: 20px;
     }
   }
 }

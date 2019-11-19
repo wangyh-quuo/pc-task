@@ -8,7 +8,7 @@
           <transition>
             <div v-show="type==0&&currentIndex==index1">
               <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
+                <h2 style="font-size: 20px;">{{ $route.query.text }}</h2>
                 <span
                   class="collection el-icon-star-on"
                   :style="item.isCollection?{color:'#ffdd46'}:{color: '#e1e3e6'}"
@@ -42,7 +42,7 @@
             <i class="el-icon-arrow-left"></i>
             上一题
           </button>
-          <button class="button-active" @click="nextExam">
+          <button :class="finalExam" @click="nextExam">
             下一题
             <i class="el-icon-arrow-right"></i>
           </button>
@@ -53,7 +53,7 @@
           <transition>
             <div v-show="type==1&&mistakeCurrentIndex==index1">
               <div class="exam-title">
-                <h2 style="font-size: 20px;">消化系统</h2>
+                <h2 style="font-size: 20px;">{{ $route.query.text }}</h2>
                 <span
                   class="collection el-icon-star-on"
                   :style="item.isCollection?{color: '#ffdd46'}:{color: '#e1e3e6'}"
@@ -87,7 +87,7 @@
             <i class="el-icon-arrow-left"></i>
             上一题
           </button>
-          <button class="button-active" @click="nextExam">
+          <button :class="finalExam" @click="nextExam">
             下一题
             <i class="el-icon-arrow-right"></i>
           </button>
@@ -96,7 +96,7 @@
       <!-- 答题卡 -->
       <div class="exam-card_box">
         <p class="exam-card_time">{{ payTime.h }}:{{ payTime.m }}:{{ payTime.s }}</p>
-        <div class="exam-card_content">
+        <div class="exam-card_content" v-show="type==0">
           <div class="exam-card_title">
             <h2>答题卡</h2>
             <p>共{{ examLength }}题</p>
@@ -108,6 +108,35 @@
               v-for="(item,index) of answerCardList"
               :key="item.id"
               @click="currentIndex=index"
+            >{{ index+1 }}</span>
+          </div>
+          <div class="exam-card_tips">
+            <div style="color: #00b395;">
+              <span class="icon_ok"></span>
+              <span>已做</span>
+            </div>
+            <div style="color: #ff695e;">
+              <span class="icon_error"></span>
+              <span>错误</span>
+            </div>
+            <div style="color: #999;">
+              <span class="icon_no"></span>
+              <span>未做</span>
+            </div>
+          </div>
+        </div>
+        <div class="exam-card_content" v-show="type==1">
+          <div class="exam-card_title">
+            <h2>答题卡</h2>
+            <p>共{{ mistakeList.length }}题</p>
+          </div>
+          <!-- 答题卡内容 -->
+          <div class="exam-card_index">
+            <span
+              :class="isDo(item,index)"
+              v-for="(item,index) of mistakeList"
+              :key="item.id"
+              @click="mistakeCurrentIndex=index"
             >{{ index+1 }}</span>
           </div>
           <div class="exam-card_tips">
@@ -191,14 +220,33 @@ export default {
       examLength: 0, //试题总数量
       cardList: [], //答题卡内容
       mistakeList: [], //错题
-      type: 0 //0 所有解析 ，1 只看错题
+      type: 0,//0 所有解析 ，1 只看错题
+      reportData: {}, //
     };
   },
   computed: {
     ...mapState(["userInfo", "scoreReport"]),
     //第一题禁止按钮
     firstExam() {
-      return this.currentIndex == 0 ? "button-disabled" : "button-active";
+      if(this.type==0){
+        return this.currentIndex == 0 ? "button-disabled" : "button-active";
+      }else {
+        return this.mistakeCurrentIndex == 0
+          ? "button-disabled"
+          : "button-active";
+      }
+    },
+    finalExam() {
+      if (this.type == 0) {
+        return this.currentIndex == this.examLength - 1
+          ? "button-disabled"
+          : "button-active";
+      } else if (this.type == 1) {
+        return this.mistakeCurrentIndex == this.mistakeList.length - 1
+          ? "button-disabled"
+          : "button-active";
+      }
+      return "button-active";
     },
     payTime() {
       return {
@@ -303,11 +351,19 @@ export default {
     nextExam() {
       if (this.type == 0) {
         if (this.currentIndex == this.examLength - 1) {
+          this.$message({
+            type: "info",
+            message: "到底了!"
+          });
           return;
         }
         this.currentIndex++;
       } else if (this.type == 1) {
         if (this.mistakeCurrentIndex == this.mistakeList.length - 1) {
+          this.$message({
+            type: "info",
+            message: "到底了!"
+          });
           return;
         }
         this.mistakeCurrentIndex++;
@@ -339,14 +395,16 @@ export default {
     showAllAnswer() {
       this.$router.push({
         name: "answer",
-        params: { id: this.$route.params.id, type: 0 }
+        params: { id: this.$route.params.id, type: 0 },
+        query: { text: this.$route.query.text }
       });
       this.type = 0;
     },
     showOnlyMistake() {
       this.$router.push({
         name: "answer",
-        params: { id: this.$route.params.id, type: 1 }
+        params: { id: this.$route.params.id, type: 1 },
+        query: { text: this.$route.query.text }
       });
       this.type = 1;
     },
@@ -357,12 +415,12 @@ export default {
       });
     },
     getReportData() {
-      this.scoreReport.some(item=>{
-        if(item.id==this.$route.params.id){
+      this.scoreReport.some(item => {
+        if (item.id == this.$route.params.id) {
           this.reportData = item;
           return true;
         }
-      })
+      });
     }
   },
   components: {

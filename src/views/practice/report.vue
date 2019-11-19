@@ -9,7 +9,7 @@
             :percentage="reportData.percent"
             :stroke-width="12"
             :width="160"
-            color= "#00b395"
+            color="#00b395"
           ></el-progress>
           <p>正确率</p>
         </div>
@@ -63,11 +63,11 @@
           <img src="@/assets/image/report_check_answer.png" alt />
           <p>查看解析</p>
         </div>
-        <div class="page-content__to-item" @click="showAnswer(1)">
-          <img src="@/assets/image/report_check_wrong.png" alt />
-          <p>只看错题</p>
-        </div>
         <div class="page-content__to-item" @click="toDoExercisePage">
+          <img src="@/assets/image/report_check_wrong.png" alt />
+          <p>错题重做</p>
+        </div>
+        <div class="page-content__to-item" @click="toHomePage">
           <img src="@/assets/image/report_back_list.png" alt />
           <p>返回首页</p>
         </div>
@@ -83,7 +83,7 @@ export default {
   data() {
     return {
       answerCardList: [],
-      reportData: {},
+      reportData: {}
     };
   },
   computed: {
@@ -116,7 +116,8 @@ export default {
     showAnswer(type) {
       this.$router.push({
         name: "answer",
-        params: { id: this.$route.params.id, type: type }
+        params: { id: this.$route.params.id, type: type },
+        query: { text: this.reportData.title || this.$route.query.text }
       });
     },
     //请求数据
@@ -130,18 +131,36 @@ export default {
           console.log(err);
         });
     },
-    toDoExercisePage() {
+    toHomePage() {
       this.$router.push({
         name: "home"
       });
     },
+    toDoExercisePage() {
+      if (this.$route.params.testId != 0) {
+        this.$router.push({
+          name: "doExercise",
+          params: {
+            classifyId: this.$route.query.classifyId,
+            id: this.$route.params.testId
+          },
+          query: { id: this.$route.params.id, text: this.$route.query.text }
+        });
+      } else if (this.$route.params.testId == 0) {
+        this.$router.push({
+        name: "answer",
+        params: { id: this.$route.params.id, type: 1 },
+        query: { text: this.reportData.title || this.$route.query.text }
+      });
+      }
+    },
     getReportData() {
-      this.scoreReport.some(item=>{
-        if(item.id==this.$route.params.id){
+      this.scoreReport.some(item => {
+        if (item.id == this.$route.params.id) {
           this.reportData = item;
           return true;
         }
-      })
+      });
     }
   },
   components: {
@@ -176,7 +195,7 @@ export default {
       }
     }
     .report-progress /deep/ .el-progress__text {
-      font-size: 56px!important;
+      font-size: 56px !important;
       color: #00b395;
     }
     .page-content__report-ifo {
