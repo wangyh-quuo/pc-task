@@ -323,7 +323,6 @@ export default {
     },
     //查看我的成绩
     toReportPage(item) {
-      console.log(item);
       this.$router.push({
         name: "report",
         params: { testId: parseInt(item.tid), id: item.id },

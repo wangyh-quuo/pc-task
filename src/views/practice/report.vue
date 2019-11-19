@@ -6,7 +6,7 @@
         <div class="report-progress">
           <el-progress
             type="circle"
-            :percentage="reportData.percent"
+            :percentage="reportData.percent || rightPrectentage"
             :stroke-width="12"
             :width="160"
             color="#00b395"
@@ -16,21 +16,21 @@
         <div class="page-content__report-ifo">
           <div class="page-content__report-ifo-top">
             <div class="page-content__report-ifo-top-item">
-              <p>{{ reportData.reCount }}</p>
+              <p>{{ reportData.reCount || reCount }}</p>
               <p>答题总数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
-              <p>{{ reportData.rightCount }}</p>
+              <p>{{ reportData.rightCount || rightCount }}</p>
               <p>正确数</p>
             </div>
             <div class="page-content__report-ifo-top-item">
-              <p>{{ payTime.m }}分{{ payTime.s }}秒</p>
+              <p>{{ payTime.m || 0}}分{{ payTime.s || 0}}秒</p>
               <p>用时</p>
             </div>
           </div>
           <p class="page-content__report-ifo-bottom content-bottom-report-ifo-top-item">
             您已
-            <span>超越{{ reportData.percentage }}</span>的用户！继续加油哦！
+            <span>超越{{ reportData.percentage || '0%' }}</span>的用户！继续加油哦！
           </p>
         </div>
       </div>
@@ -83,7 +83,10 @@ export default {
   data() {
     return {
       answerCardList: [],
-      reportData: {}
+      reportData: {},
+      rightCount: 0,
+      reCount: 0,
+      rightPrectentage: 0
     };
   },
   computed: {
@@ -108,9 +111,19 @@ export default {
     this.initPage();
   },
   methods: {
-    initPage() {
+    async initPage() {
       this.getReportData();
-      this.getAnswerCard(this.$route.params.id, 0);
+      this.answerCardList = await this.api.getAnswerCard(
+        this.$route.params.id,
+        0
+      );
+      this.reCount = this.answerCardList.length;
+      this.answerCardList.forEach(item => {
+        if (item.userSelect == item.answer) {
+          this.rightCount++;
+        }
+      });
+      this.rightPrectentage = parseInt(this.rightCount/this.reCount*100);
     },
     //查看解析
     showAnswer(type) {
@@ -122,14 +135,7 @@ export default {
     },
     //请求数据
     getAnswerCard(id, range) {
-      this.api
-        .getAnswerCard(id, range)
-        .then(res => {
-          this.answerCardList = res;
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      return this.api.getAnswerCard(id, range);
     },
     toHomePage() {
       this.$router.push({
@@ -148,10 +154,10 @@ export default {
         });
       } else if (this.$route.params.testId == 0) {
         this.$router.push({
-        name: "answer",
-        params: { id: this.$route.params.id, type: 1 },
-        query: { text: this.reportData.title || this.$route.query.text }
-      });
+          name: "answer",
+          params: { id: this.$route.params.id, type: 1 },
+          query: { text: this.reportData.title || this.$route.query.text }
+        });
       }
     },
     getReportData() {
